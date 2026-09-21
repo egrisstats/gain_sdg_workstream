@@ -6,8 +6,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
 :root{
-  --bg:#eef2f6; --panel:#ffffff; --ink:#14234c; --ink-soft:#52627a; --ink-faint:#8494a8;
-  --line:#e0e6ee; --ocean:#eaf1f7; --graticule:#d5e2ee; --land:#d7e4f0; --hasdata:#c6d9ef; --land-line:#bccfe0;
+  --bg:#f7fafd; --panel:#ffffff; --ink:#14234c; --ink-soft:#52627a; --ink-faint:#8494a8;
+  --line:#d9e2ef; --ocean:#eef3fa; --graticule:#dde8f5; --land:#dde8f5; --hasdata:#cddff2; --land-line:#ffffff;
   --c0:#cfe1f0; --c1:#8dbde0; --c2:#4d9bd4; --c3:#3b71b9; --c4:#072d62; /* EGRISS blue ramp */
   --micro:#4cc3c9; --green:#2e9e6b; --accent:#3b71b9;
   --fill-calc:#3b71b9; --fill-rep:#77b0d8; --fill-data:#c7dcec; --fill-hover:#072d62;
@@ -119,7 +119,7 @@ svg{display:block;width:100%;height:auto}
 .ctrlbar{display:flex;justify-content:flex-end;margin:0 0 8px}
 .seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px;box-shadow:var(--shadow)}
 .seg button{font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:600;color:var(--ink-soft);background:none;border:0;border-radius:999px;padding:6px 13px;cursor:pointer;letter-spacing:.02em}
-.seg button.on{background:var(--accent);color:#fff}
+.seg button.on{background:var(--ink);color:#fff}.seg button:not(.on):hover{background:var(--hasdata);color:var(--ink)}
 .seg button .dia{color:var(--gold)}
 .seg button.on .dia{color:#fff}
 html.embed .eyebrow,html.embed h1,html.embed .sub,html.embed .kpis{display:none}
