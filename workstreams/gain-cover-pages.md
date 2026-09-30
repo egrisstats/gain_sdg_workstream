@@ -20,10 +20,21 @@ Cover thumbnails and working source links feed three products:
 |---|---|
 | Examples with a cover card in `covers.html` | 94 |
 | … of which with a source URL | 37 |
-| Cover images actually available | 3 (SharePoint `GAIN SDG Map & Outreach Resources/covers/`), none in this repo |
-| Usable covers | 2 (`ex082` Mali INSTAT EMOP 2024; `ex322` Uganda UBOS National Governance, Peace and Security Survey 2024/25) |
-| Rejected | `ex069`: not a cover (Jordan DoS publication price list) |
-| `data/gain_example_links.csv` | **added on this branch**, rebuilt from `covers.html` and joined to the GAIN group roster |
+| Usable covers in `covers/` (checked by eye) | **9** |
+| Rejected after checking | 10 (logos, icons, stock photos, an inner yearbook page, a price list) |
+| Still missing | 75 (57 without a URL; 18 links that failed or had no preview image) |
+
+**Covers in use:** `ex007` Kazakhstan population report · `ex082` Mali INSTAT EMOP 2024 ·
+`ex105` Jordan LFS 2024 questionnaire (first page) · `ex111` Statistics Norway asylum-migration note ·
+`ex114` UNHCR, *From Stateless to Citizens* (Kenya) · `ex204` Colombia Victims Unit data portal ·
+`ex307` Belize 2022 Census migration report · `ex322` Uganda UBOS Governance, Peace and Security Survey 2024/25 ·
+`ex327` Kosovo 2024 census report.
+
+**First pass (30 Sep 2026):** `tools/fetch_covers.py` ran over the 37 links; results are in
+`data/cover_fetch_log.csv`. Why 18 links gave nothing: 403 blocks (unece.org, iadb.org, unrwa.org),
+404s (gouv.ci, stat.gov.pl), timeouts (knbs.or.ke, pcbs.gov.ps), a private Google Drive file, and
+landing pages without a preview image (ons.gov.uk, dosweb.dos.gov.jo, inegi.org.mx, instad.dj, insee.fr).
+Web-page previews need extra care: Statistics Norway's are stock photos, not report covers.
 
 **ID convention:** `exNNN` is the 1-based row in `analysis_ready_group_roster.csv`
 (e.g. `ex113` = row 113 = Burkina Faso INSD, socio-economic survey of IDP and host households).
@@ -45,7 +56,9 @@ Suggested extra columns as the work progresses: `url_found_by` (respondent / web
 
 ## Tasks
 
-- [ ] **Regenerate covers for the 37 examples with URLs.** PDF → render page 1 at about 400 px wide
+- [x] **First pass over the 37 examples with URLs** (9 usable covers; see above).
+- [ ] **Retry the 18 failed links** by hand in a browser (403/timeout sites), or replace landing pages with the specific publication.
+- [ ] ~~Regenerate covers for the 37 examples with URLs.~~ PDF → render page 1 at about 400 px wide
       (e.g. PyMuPDF) → `covers/exNNN.png`. For HTML pages use the page's `og:image` or a screenshot
       of the report landing page.
 - [ ] **Find sources for the 57 examples without URLs.** Search by title + organisation + country
