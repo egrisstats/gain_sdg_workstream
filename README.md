@@ -16,6 +16,10 @@ read against the **14 priority SDG indicators** in EGRISS Methodological Paper 3
 | `data/GAIN_SDG_methodology_record.md` | How each indicator was derived, per survey family |
 | `data/census_sdg_tabulation_targets.csv` | NSO outreach targets for custom tabulations |
 | `data/gain_next_round_outreach_draft.md` | Draft outreach messages for the next GAIN round |
+| `data/gain_example_links.csv` | GAIN examples with report cover status and source links |
+
+## Workstreams
+- [GAIN example cover pages and source links](workstreams/gain-cover-pages.md): open
 
 ## How to read the map
 Each country is shaded by the strength of its evidence. Hover for cards, **grouped by population**
