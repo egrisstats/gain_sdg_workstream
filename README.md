@@ -19,7 +19,7 @@ read against the **14 priority SDG indicators** in EGRISS Methodological Paper 3
 | `data/gain_example_links.csv` | GAIN examples with report cover status and source links |
 
 ## Workstreams
-- [GAIN example cover pages and source links](workstreams/gain-cover-pages.md): open
+- GAIN example cover pages and source links: moved to [gain-example-covers](https://github.com/mitrovif/gain-example-covers)
 
 ## How to read the map
 Each country is shaded by the strength of its evidence. Hover for cards, **grouped by population**
