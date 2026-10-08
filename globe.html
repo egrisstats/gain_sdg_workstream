@@ -85,6 +85,23 @@ html,body{margin:0;height:100%;background:radial-gradient(130% 130% at 70% 18%,#
 @media(max-width:820px){.sub{display:none}.top h1{font-size:1.1rem}.sdgbar,.sdgstatus{display:none}
   #cardpanel{top:auto;bottom:0;right:0;left:0;width:100%;max-width:100%;max-height:52vh;border-radius:15px 15px 0 0}
   .legend{display:none}}
+/* populations strip in card */
+.popstrip{margin:4px 0 8px;padding:9px 11px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px}
+.poph{font-family:"IBM Plex Mono",monospace;font-size:8.5px;letter-spacing:.09em;text-transform:uppercase;color:#8fa0c2;margin-bottom:6px}
+.poprow{display:grid;grid-template-columns:14px 1fr auto;gap:7px;align-items:baseline;padding:4px 0;font-size:11.5px;border-top:1px solid rgba(255,255,255,.06)}
+.poph + .poprow{border-top:0}
+.poprow .pcov{font-weight:800;text-align:center}
+.poprow .pcov.yes{color:#4cc3c9}.poprow .pcov.no{color:#59657e}
+.poprow .pg{color:#cbd6ea}.poprow.cov .pg{color:#fff;font-weight:600}
+.poprow .pn{font-family:"IBM Plex Mono",monospace;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;justify-self:end}
+.poprow .psrc{grid-column:2/4;font-family:"IBM Plex Mono",monospace;font-size:8.5px;color:#7f8ea8;margin-top:-2px}
+.poprow .pnote{color:#9fb4c8;font-style:italic}
+/* population-group filter */
+.popbar{top:198px;left:22px;display:flex;align-items:center;gap:3px;pointer-events:auto;background:rgba(7,16,36,.6);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:4px 6px;backdrop-filter:blur(8px)}
+.popbar .lbl{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#8fa0c2;padding:0 5px}
+.popbar button{font-family:"IBM Plex Sans",sans-serif;font-size:11px;font-weight:600;color:#cfe0f5;background:none;border:0;border-radius:999px;padding:4px 10px;cursor:pointer}
+.popbar button.on{background:#3b71b9;color:#fff}
+@media(max-width:820px){.popbar{display:none}}
 </style>
 </head>
 <body>
@@ -118,6 +135,7 @@ html,body{margin:0;height:100%;background:radial-gradient(130% 130% at 70% 18%,#
   <div class="lrow"><span class="sw none"></span>No data yet</div>
   <div class="hint">Only the teal &amp; blue countries are interactive.</div>
 </div>
+<div class="ui popbar" id="popbar"><span class="lbl">Population</span><button class="on" data-p="all">All</button><button data-p="refugees">Refugees</button><button data-p="idps">IDPs</button><button data-p="stateless">Stateless</button></div>
 <div class="sdgstatus" id="sdgstatus"></div>
 <div class="ui sdgbar" id="sdgbar"></div>
 <script src="https://unpkg.com/globe.gl"></script>
@@ -232,13 +250,23 @@ function goalsOf(nm){const s=new Set();allInds(nm).forEach(c=>s.add(parseInt(c))
 const ALLNM=new Set([...keys(CALC),...keys(EST),...keys(REAL),...keys(STL),...keys(CI)]);
 const VAL=new Set([...ALLNM].filter(nm=>totVals(nm)>0));   // 27 value countries (teal/blue)
 const GOALS=[...new Set([].concat(...[...VAL].map(nm=>[...goalsOf(nm)])))].sort((a,b)=>a-b);
+const POP={"Mozambique": {"iso": "MOZ", "pops": [{"group": "Refugees", "size": 5370, "year": "2024", "src": "UNHCR", "covered": false}, {"group": "IDPs", "size": 461745, "year": "2025", "src": "IDMC", "covered": true}]}, "Cameroon": {"iso": "CMR", "pops": [{"group": "Refugees", "size": 427706, "year": "2024", "src": "UNHCR", "covered": false}, {"group": "IDPs", "size": 1004257, "year": "2025", "src": "IDMC", "covered": true}]}, "South Sudan": {"iso": "SSD", "pops": [{"group": "Refugees", "size": 514794, "year": "2024", "src": "UNHCR", "covered": true}, {"group": "IDPs", "size": 1277527, "year": "2025", "src": "IDMC", "covered": false}, {"group": "Stateless", "size": 18000, "year": "2024", "src": "UNHCR", "covered": false}]}, "Pakistan": {"iso": "PAK", "pops": [{"group": "Refugees", "size": 1560480, "year": "2024", "src": "UNHCR", "covered": true}, {"group": "Stateless", "size": 60, "year": "2024", "src": "UNHCR", "covered": false}]}, "DR Congo": {"iso": "COD", "pops": [{"group": "Refugees", "size": 517404, "year": "2024", "src": "UNHCR", "covered": false}, {"group": "IDPs", "size": 5669479, "year": "2025", "src": "IDMC", "covered": true}]}, "Zambia": {"iso": "ZMB", "pops": [{"group": "Refugees", "size": 79275, "year": "2024", "src": "UNHCR", "covered": true}]}, "Kenya": {"iso": "KEN", "pops": [{"group": "Refugees", "size": 604257, "year": "2024", "src": "UNHCR", "covered": true}, {"group": "Stateless", "size": 9800, "year": "2024", "src": "UNHCR", "covered": true}]}, "Ecuador": {"iso": "ECU", "pops": [{"group": "Venezuelans", "size": 439097, "year": "2024", "src": "UNHCR (displaced abroad)", "covered": true}]}, "Bangladesh": {"iso": "BGD", "pops": [{"group": "Rohingya refugees", "size": 1005602, "year": "2024", "src": "UNHCR", "covered": true}, {"group": "Stateless", "size": 1005520, "year": "2024", "src": "UNHCR", "covered": false}]}, "Malawi": {"iso": "MWI", "pops": [{"group": "Refugees", "size": 35510, "year": "2024", "src": "UNHCR", "covered": true}]}, "Nigeria": {"iso": "NGA", "pops": [{"group": "Refugees", "size": 96387, "year": "2024", "src": "UNHCR", "covered": false}, {"group": "IDPs", "size": 3544519, "year": "2025", "src": "IDMC", "covered": true}]}, "Italy": {"iso": "ITA", "pops": [{"group": "Refugees", "size": 312849, "year": "2024", "src": "UNHCR", "covered": true}, {"group": "Stateless", "size": 3000, "year": "2024", "src": "UNHCR", "covered": false}]}, "Jordan": {"iso": "JOR", "pops": [{"group": "Refugees", "size": 643641, "year": "2024", "src": "UNHCR", "covered": true}, {"group": "Stateless", "size": 17, "year": "2024", "src": "UNHCR", "covered": false}]}, "Egypt": {"iso": "EGY", "pops": [{"group": "Refugees", "size": 238014, "year": "2024", "src": "UNHCR", "covered": true}, {"group": "Stateless", "size": 5, "year": "2024", "src": "UNHCR", "covered": false}]}, "Honduras": {"iso": "HND", "pops": [{"group": "Refugees", "size": 202, "year": "2024", "src": "UNHCR", "covered": false}, {"group": "IDPs", "size": 423845, "year": "2025", "src": "IDMC", "covered": true}]}, "Somalia": {"iso": "SOM", "pops": [{"group": "Refugees", "size": 19503, "year": "2024", "src": "UNHCR", "covered": false}, {"group": "IDPs", "size": 3347408, "year": "2025", "src": "IDMC", "covered": true}]}, "State of Palestine": {"iso": "PSE", "pops": [{"group": "Palestinian refugees", "size": 2500000, "year": "2023", "src": "UNRWA registered (Gaza ~1.6M + West Bank ~0.9M)", "covered": true}]}, "Uganda": {"iso": "UGA", "pops": [{"group": "Refugees", "size": 1759492, "year": "2024", "src": "UNHCR", "covered": true}, {"group": "Stateless", "size": 10284, "year": "2024", "src": "UNHCR", "covered": false}]}, "United Kingdom": {"iso": "GBR", "pops": [{"group": "Refugees", "size": 515677, "year": "2024", "src": "UNHCR", "covered": true}, {"group": "Stateless", "size": 4672, "year": "2024", "src": "UNHCR", "covered": false}]}, "Colombia": {"iso": "COL", "pops": [{"group": "Refugees", "size": 1306, "year": "2024", "src": "UNHCR", "covered": false}, {"group": "IDPs", "size": 7157716, "year": "2025", "src": "IDMC", "covered": true}, {"group": "Stateless", "size": 5, "year": "2024", "src": "UNHCR", "covered": false}]}, "Burkina Faso": {"iso": "BFA", "pops": [{"group": "Refugees", "size": 39915, "year": "2024", "src": "UNHCR", "covered": false}, {"group": "IDPs", "size": 2062534, "year": "2025", "src": "IDMC", "covered": true}]}, "Peru": {"iso": "PER", "pops": [{"group": "Venezuelans", "size": 1135215, "year": "2024", "src": "UNHCR (displaced abroad)", "covered": true}, {"group": "Stateless", "size": 32, "year": "2024", "src": "UNHCR", "covered": false}]}, "Morocco": {"iso": "MAR", "pops": [{"group": "Refugees", "size": 7470, "year": "2024", "src": "UNHCR", "covered": true}]}, "Rwanda": {"iso": "RWA", "pops": [{"group": "Refugees", "size": 114368, "year": "2024", "src": "UNHCR", "covered": true}, {"group": "Stateless", "size": 14500, "year": "2024", "src": "UNHCR", "covered": false}]}, "Mexico": {"iso": "MEX", "pops": [{"group": "Refugees", "size": 150836, "year": "2024", "src": "UNHCR", "covered": false}, {"group": "IDPs", "size": 262411, "year": "2025", "src": "IDMC", "covered": true}, {"group": "Stateless", "size": 13, "year": "2024", "src": "UNHCR", "covered": false}]}, "Moldova": {"iso": "MDA", "pops": [{"group": "Ukrainian refugees", "size": 135941, "year": "2024", "src": "UNHCR", "covered": true}, {"group": "Stateless", "size": 3164, "year": "2024", "src": "UNHCR", "covered": false}]}, "Lebanon": {"iso": "LBN", "pops": [{"group": "Syrian refugees", "size": 755426, "year": "2024", "src": "UNHCR", "covered": true}, {"group": "Palestinian refugees", "size": 493201, "year": "2023", "src": "UNRWA registered", "covered": true, "note": "~248k present (2025)"}, {"group": "IDPs", "size": 64417, "year": "2025", "src": "IDMC", "covered": false}, {"group": "Stateless", "size": 40000, "year": "2024", "src": "UNHCR", "covered": false}]}};
+let activePop=null;
+function broadG(g){g=(g||'').toLowerCase(); if(g.indexOf('idp')>=0)return'idps'; if(g.indexOf('stateless')>=0)return'stateless'; return'refugees';}
+function popCovered(nm){const p=POP[nm];const s=new Set();if(p)p.pops.forEach(r=>{if(r.covered)s.add(broadG(r.group));});return s;}
+function fmtN(n){return n>=1e6?(n/1e6).toFixed(n>=1e7?0:1)+'M':n>=1e3?Math.round(n/1e3)+'k':''+n;}
+function popStrip(nm){const p=POP[nm];if(!p||!p.pops.length)return'';
+  const rows=p.pops.map(r=>{const tick=r.covered?'<span class="pcov yes" title="We have SDG data for this group">✓</span>':'<span class="pcov no" title="No SDG data for this group yet">—</span>';
+    const note=r.note?' <span class="pnote">'+r.note+'</span>':'';
+    return '<div class="poprow'+(r.covered?' cov':'')+'">'+tick+'<span class="pg">'+r.group+'</span><span class="pn">'+fmtN(r.size)+'</span><span class="psrc">'+r.src+' · '+r.year+note+'</span></div>';}).join('');
+  return '<div class="popstrip"><div class="poph">Who lives here · ✓ = we have SDG data</div>'+rows+'</div>';}
 const fname=f=>f.properties.ADMIN||f.properties.NAME||"";
 const ourOf=f=>{const n=fname(f);return ALIAS[n]||n;};
 const COLS={calc:{b:'#4cc3c9',h:'#9beaed'},rep:{b:'#3b71b9',h:'#79aef0'}};
 const C_DATA='#d9a441', C_DATA_DIM='#3a4660', C_NONE='#55627c', C_VALDIM='#39506f';
 let hoverF=null,pinNm=null,activeGoal=null;
 function isActiveNm(o){return (o===pinNm)||(hoverF&&ourOf(hoverF)===o);}
-function inFilter(o){return VAL.has(o)&&(activeGoal==null||goalsOf(o).has(activeGoal));}
+function inFilter(o){return VAL.has(o)&&(activeGoal==null||goalsOf(o).has(activeGoal))&&(activePop==null||popCovered(o).has(activePop));}
 function capColor(f){const o=ourOf(f);
   if(VAL.has(o)){ if(activeGoal!=null && !goalsOf(o).has(activeGoal)) return C_VALDIM;
     const k=tier(o)||'rep'; return isActiveNm(o)?COLS[k].h:COLS[k].b; }
@@ -253,7 +281,7 @@ const cardbody=document.getElementById('cardbody');
 function countText(nm){const n=totVals(nm);return n?n+' value'+(n>1?'s':''):'data in hand';}
 function renderCard(nm){ if(!nm)return;
   document.querySelector('#cardpanel .ptitle').innerHTML='<b>'+nm+'</b><button class="loc" title="Center this country">📍 locate</button><span class="r">'+countText(nm)+'</span>';
-  cardbody.innerHTML=sdgCards(nm); cardbody.scrollTop=0;
+  cardbody.innerHTML=popStrip(nm)+sdgCards(nm); cardbody.scrollTop=0;
 }
 panel.addEventListener('click',e=>{
   const loc=e.target.closest('.loc');
@@ -267,13 +295,23 @@ panel.addEventListener('click',e=>{
 const bar=document.getElementById('sdgbar'), status=document.getElementById('sdgstatus');
 bar.innerHTML='<span class="lbl">SDG</span><button class="sdgchip all on" data-g="all">All</button>'+
   GOALS.map(g=>'<button class="sdgchip" data-g="'+g+'" title="SDG '+g+' — '+(GOALNAME[g]||'')+'">'+(ICON[g]?'<img src="'+ICON[g]+'" alt="SDG '+g+'">':g)+'</button>').join('');
-function setStatus(){ if(activeGoal==null){status.classList.remove('show');return;}
-  const n=[...VAL].filter(nm=>goalsOf(nm).has(activeGoal)).length;
-  status.textContent='SDG '+activeGoal+' · '+(GOALNAME[activeGoal]||'')+' — '+n+' countr'+(n==1?'y':'ies');
+function setStatus(){ const parts=[];
+  if(activeGoal!=null)parts.push('SDG '+activeGoal+' · '+(GOALNAME[activeGoal]||''));
+  if(activePop!=null)parts.push(({refugees:'Refugees',idps:'IDPs',stateless:'Stateless'}[activePop]||activePop)+' data');
+  if(!parts.length){status.classList.remove('show');return;}
+  const n=[...VAL].filter(nm=>inFilter(nm)).length;
+  status.textContent=parts.join('  +  ')+' — '+n+' countr'+(n==1?'y':'ies');
   status.classList.add('show'); }
 bar.addEventListener('click',e=>{const b=e.target.closest('.sdgchip');if(!b)return;
   activeGoal=b.dataset.g==='all'?null:+b.dataset.g;
   bar.querySelectorAll('.sdgchip').forEach(x=>x.classList.toggle('on',x===b));
+  setStatus(); refreshPoly();
+});
+// ---- population-group filter ----
+const popbar=document.getElementById('popbar');
+popbar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  activePop=b.dataset.p==='all'?null:b.dataset.p;
+  popbar.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
   setStatus(); refreshPoly();
 });
 // ---- globe ----
