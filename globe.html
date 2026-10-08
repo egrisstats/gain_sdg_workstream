@@ -127,6 +127,19 @@ body.gapview .legend.gap{display:block}
 .orow .obar{height:4px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden}
 .orow .obar i{display:block;height:100%;background:linear-gradient(90deg,#4cc3c9,#7bb3f0);border-radius:3px}
 .orow .ov{font-family:"IBM Plex Mono",monospace;font-weight:700;color:#fff;font-size:11px;font-variant-numeric:tabular-nums;justify-self:end}
+/* card <-> country connector */
+.conn{position:fixed;inset:0;width:100%;height:100%;z-index:11;pointer-events:none;display:none}
+.conn.show{display:block}
+#connLine{stroke:#6fe0e6;stroke-width:1.6;stroke-dasharray:5 5;opacity:.75}
+#connDot{fill:#8fe9ee}
+#connPulse{fill:none;stroke:#8fe9ee;stroke-width:2;opacity:.7;animation:connpulse 1.7s ease-out infinite}
+@keyframes connpulse{0%{r:5;opacity:.7}100%{r:22;opacity:0}}
+/* readability polish */
+.smeta{font-size:9.5px;color:rgba(255,255,255,.58)}
+.poph{color:#a7b8d4}
+.gaprow .gsub{font-size:9px;color:#96a6c0}
+.orow .psrc,.poprow .psrc{font-size:9px;color:#90a0ba}
+.legend .hint,.sub{color:#b4c1da}
 </style>
 </head>
 <body>
@@ -170,6 +183,7 @@ body.gapview .legend.gap{display:block}
 <div class="ui popbar" id="popbar"><span class="lbl">Population</span><button class="on" data-p="all">All</button><button data-p="refugees">Refugees</button><button data-p="idps">IDPs</button><button data-p="stateless">Stateless</button></div>
 <div class="sdgstatus" id="sdgstatus"></div>
 <div class="ui sdgbar" id="sdgbar"></div>
+<svg class="conn" id="conn"><line id="connLine"/><circle id="connPulse" r="6"/><circle id="connDot" r="4"/></svg>
 <script src="https://unpkg.com/globe.gl"></script>
 <script>
 const SHORT={"State of Palestine":"Palestine","United Kingdom":"UK","DR Congo":"DR Congo","Republic of Moldova":"Moldova","Côte d'Ivoire":"Côte d'Ivoire","Turkmenistan":"Turkmen.","Kyrgyzstan":"Kyrgyz.","Kazakhstan":"Kazakh."};
@@ -345,7 +359,7 @@ function renderGapList(){ document.querySelector('#cardpanel .ptitle').innerHTML
   const gaps=Object.entries(POPALL).filter(([k,v])=>!v.covered&&v.total>0).sort((a,b)=>b[1].total-a[1].total).slice(0,30);
   cardbody.innerHTML='<div class="gaphead">Largest forcibly-displaced populations with <b>no SDG data yet</b> — ranked outreach priorities. Click a row to fly there.</div>'+gaps.map(([iso,v],i)=>gapRow(iso,v,i+1)).join(''); cardbody.scrollTop=0; }
 function setMode(m){ MODE=m; panel.classList.remove('pinned'); panel.classList.toggle('gapmode',m==='gap'); document.body.classList.toggle('gapview',m==='gap');
-  activeGoal=null;activePop=null;pinNm=null;hoverF=null;setLabel(null); status.classList.remove('show');
+  activeGoal=null;activePop=null;pinNm=null;lastNm=null;hoverF=null;setLabel(null); status.classList.remove('show');
   bar.querySelectorAll('.sdgchip').forEach(x=>x.classList.toggle('on',x.dataset.g==='all'));
   popbar.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.p==='all'));
   if(m==='gap'){renderGapList();} else {document.querySelector('#cardpanel .ptitle').innerHTML='<b>Explore the globe</b>'; cardbody.innerHTML=PLACEHOLDER;}
@@ -420,10 +434,10 @@ const G=Globe()(world)
   .onPolygonClick(f=>{ if(MODE==='gap'){const iso=ISO_OF(f),p=POPALL[iso]; if(p&&p.total>0){hoverF=f;flyToIso(iso);refreshPoly();} return;}
     const o=ourOf(f); if(inFilter(o)){pinNm=o;lastNm=o;panel.classList.add('pinned');renderCard(o);setLabel(o);setArcs(o);const ll=LL[o];if(ll)G.pointOfView({lat:ll[0],lng:ll[1],altitude:1.5},900);refreshPoly();} })
   .arcsData([]).arcStartLat('sLat').arcStartLng('sLng').arcEndLat('eLat').arcEndLng('eLng')
-  .arcColor(()=>['rgba(76,195,201,0.12)','rgba(123,179,240,0.95)']).arcStroke(d=>0.4+1.8*Math.sqrt(d.n)/Math.sqrt(maxArc))
-  .arcDashLength(0.4).arcDashGap(0.22).arcDashAnimateTime(2200).arcAltitudeAutoScale(0.45)
+  .arcColor(d=>{const t=Math.min(1,Math.sqrt(d.n)/Math.sqrt(maxArc));return ['rgba(255,196,110,'+(0.25+0.35*t).toFixed(2)+')','rgba(150,236,255,0.98)'];}).arcStroke(d=>0.7+2.8*Math.sqrt(d.n)/Math.sqrt(maxArc))
+  .arcDashLength(0.35).arcDashGap(0.16).arcDashAnimateTime(1500).arcAltitudeAutoScale(0.6).arcCircularResolution(64).arcsTransitionDuration(0)
   .arcLabel(d=>'<div class="gtt">'+d.o+' → '+fmtN(d.n)+' refugees</div>')
-  .labelsData([]).labelLat('lat').labelLng('lng').labelText('txt').labelSize(d=>d.big?1.0:0.5).labelDotRadius(d=>d.big?0.34:0.22).labelColor(d=>d.big?'#eafaff':'#ffd9a1').labelResolution(2).labelAltitude(0.035);
+  .labelsData([]).labelLat('lat').labelLng('lng').labelText('txt').labelSize(d=>d.big?1.05:0.66).labelDotRadius(d=>d.big?0.34:0.26).labelColor(d=>d.big?'#eafaff':'#ffe0b0').labelResolution(2).labelAltitude(0.035);
 try{const gm=G.globeMaterial(); gm.color&&gm.color.set&&gm.color.set('#123056'); gm.emissive&&gm.emissive.set&&gm.emissive.set('#0a1b38'); gm.emissiveIntensity=0.35; gm.shininess=6;}catch(e){}
 G.pointOfView({lat:14,lng:30,altitude:2.2},0);
 const ctr=G.controls();ctr.autoRotate=true;ctr.autoRotateSpeed=0.4;ctr.enableDamping=true;ctr.dampingFactor=0.1;ctr.minDistance=190;ctr.maxDistance=540;
@@ -431,6 +445,20 @@ let idle;const pause=()=>{ctr.autoRotate=false;clearTimeout(idle);idle=setTimeou
 world.addEventListener('pointerdown',pause);world.addEventListener('wheel',pause,{passive:true});
 addEventListener('resize',()=>{G.width(innerWidth).height(innerHeight)});
 G.width(innerWidth).height(innerHeight);
+// ---- live card <-> country connector line ----
+const conn=document.getElementById('conn'),connLine=document.getElementById('connLine'),connDot=document.getElementById('connDot'),connPulse=document.getElementById('connPulse');
+function gcCos(la1,lo1,la2,lo2){const d=Math.PI/180,a=la1*d,b=la2*d,dl=(lo2-lo1)*d;return Math.sin(a)*Math.sin(b)+Math.cos(a)*Math.cos(b)*Math.cos(dl);}
+function updateConnector(){ requestAnimationFrame(updateConnector);
+  const nm=(MODE==='coverage')?lastNm:null;
+  if(!nm||!LL[nm]||!G.getScreenCoords){conn.classList.remove('show');return;}
+  const pov=G.pointOfView(); if(gcCos(pov.lat,pov.lng,LL[nm][0],LL[nm][1])<0.12){conn.classList.remove('show');return;}
+  const sc=G.getScreenCoords(LL[nm][0],LL[nm][1],0.04); if(!sc||isNaN(sc.x)){conn.classList.remove('show');return;}
+  const pr=panel.getBoundingClientRect(); const tx=pr.left+2, ty=pr.top+26;
+  connLine.setAttribute('x1',tx);connLine.setAttribute('y1',ty);connLine.setAttribute('x2',sc.x);connLine.setAttribute('y2',sc.y);
+  [connDot,connPulse].forEach(c=>{c.setAttribute('cx',sc.x);c.setAttribute('cy',sc.y);});
+  conn.classList.add('show');
+}
+requestAnimationFrame(updateConnector);
 </script>
 </body>
 </html>
