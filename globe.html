@@ -11,7 +11,24 @@
 :root{--ink:#14234c;--bg:#eef3fa;--micro:#4cc3c9;--gold:#c8912f;--teal:#4cc3c9;--blue:#3b71b9}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:radial-gradient(130% 130% at 70% 18%,#0f2042 0%,#071024 60%,#050c1c 100%);color:#eaf0fa;font-family:"IBM Plex Sans",system-ui,sans-serif;overflow:hidden}
-#globe{position:fixed;inset:0}
+#globe{position:fixed;inset:0;z-index:1}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;background-repeat:no-repeat;background-image:
+radial-gradient(1.2px 1.2px at 12% 18%,rgba(255,255,255,.85),transparent),
+radial-gradient(1px 1px at 28% 72%,rgba(255,255,255,.6),transparent),
+radial-gradient(1.5px 1.5px at 45% 33%,rgba(205,228,255,.8),transparent),
+radial-gradient(1px 1px at 63% 12%,rgba(255,255,255,.5),transparent),
+radial-gradient(1.2px 1.2px at 78% 55%,rgba(255,255,255,.7),transparent),
+radial-gradient(1px 1px at 88% 26%,rgba(205,228,255,.6),transparent),
+radial-gradient(1px 1px at 8% 86%,rgba(255,255,255,.5),transparent),
+radial-gradient(1.4px 1.4px at 92% 80%,rgba(255,255,255,.75),transparent),
+radial-gradient(1px 1px at 35% 92%,rgba(255,255,255,.5),transparent),
+radial-gradient(1.1px 1.1px at 55% 80%,rgba(205,228,255,.6),transparent),
+radial-gradient(1px 1px at 72% 90%,rgba(255,255,255,.5),transparent),
+radial-gradient(1.2px 1.2px at 18% 45%,rgba(255,255,255,.6),transparent),
+radial-gradient(1px 1px at 48% 60%,rgba(255,255,255,.4),transparent),
+radial-gradient(1px 1px at 83% 8%,rgba(255,255,255,.5),transparent),
+radial-gradient(1.4px 1.4px at 5% 58%,rgba(255,255,255,.65),transparent),
+radial-gradient(1px 1px at 66% 40%,rgba(255,255,255,.45),transparent)}
 .ui{position:fixed;z-index:10}
 .top{top:0;left:0;right:0;padding:18px 22px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;background:linear-gradient(180deg,rgba(7,16,36,.92),rgba(7,16,36,0));pointer-events:none}
 .top .brand,.top .links{pointer-events:auto}
@@ -143,6 +160,7 @@ body.gapview .legend.gap{display:block}
 </style>
 </head>
 <body>
+<div id="stars"></div>
 <div id="globe"></div>
 <div class="ui top">
   <div class="brand">
@@ -318,7 +336,7 @@ function capColor(f){ if(MODE==='gap')return gapCap(f); const o=ourOf(f);
     const k=tier(o)||'rep'; return isActiveNm(o)?COLS[k].h:COLS[k].b; }
   if(originSet.has(ISO_OF(f)))return '#7a5a2c';   // origin country of the highlighted country's refugees
   return C_NONE; }  // data-in-hand & no-data both render as plain muted land
-function polyAlt(f){ if(MODE==='gap')return gapAlt(f); const o=ourOf(f); if(inFilter(o)) return isActiveNm(o)?0.08:0.025; if(originSet.has(ISO_OF(f)))return 0.02; return 0.007; }
+function polyAlt(f){ if(MODE==='gap')return gapAlt(f); const o=ourOf(f); if(inFilter(o)) return isActiveNm(o)?0.085:0.03; if(originSet.has(ISO_OF(f)))return 0.024; return 0.013; }
 function strokeColor(f){const a=MODE==='gap'?(f===hoverF):isActiveNm(ourOf(f)); if(a)return '#eafaff'; if(MODE==='coverage'&&originSet.has(ISO_OF(f)))return '#ffcf7a'; return 'rgba(7,16,36,0.6)';}
 function refreshPoly(){G.polygonCapColor(capColor).polygonAltitude(polyAlt).polygonStrokeColor(strokeColor);}
 function setLabel(nm){ const labels=[]; if(nm&&LL[nm])labels.push({lat:LL[nm][0],lng:LL[nm][1],txt:nm,big:true});
@@ -347,8 +365,8 @@ function gapCol(t){return lerp('#f2c14e','#e5484d',gapScale(t));}
 function gapCap(f){const p=POPALL[ISO_OF(f)]; if(!p||p.total<=0)return C_NONE;
   if(p.covered)return f===hoverF?'#6fd7dc':'#2b6468';
   const c=gapCol(p.total); return f===hoverF?lerp(c,'#ffffff',0.3):c;}
-function gapAlt(f){const p=POPALL[ISO_OF(f)]; if(!p||p.total<=0)return 0.006;
-  if(p.covered)return 0.012; return 0.02+0.085*gapScale(p.total)+(f===hoverF?0.02:0);}
+function gapAlt(f){const p=POPALL[ISO_OF(f)]; if(!p||p.total<=0)return 0.013;
+  if(p.covered)return 0.018; return 0.024+0.085*gapScale(p.total)+(f===hoverF?0.02:0);}
 function flyToIso(iso){const c=CENT[iso]; if(c)G.pointOfView({lat:c[0],lng:c[1],altitude:1.6},900);}
 function gapRow(iso,v,rank){const parts=[];
   if(v.ref+v.asy>0)parts.push('Ref '+fmtN(v.ref+v.asy)); if(v.idps>0)parts.push('IDP '+fmtN(v.idps));
@@ -422,10 +440,10 @@ modetog.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)re
 const world=document.getElementById('globe');
 const G=Globe()(world)
   .backgroundColor('rgba(0,0,0,0)')
-  .showAtmosphere(true).atmosphereColor('#4cc3c9').atmosphereAltitude(0.15)
-  .showGraticules(true)
+  .showAtmosphere(true).atmosphereColor('#6ad0d9').atmosphereAltitude(0.19)
+  .showGraticules(false)
   .polygonsData(WORLDGEO.features)
-  .polygonCapColor(capColor).polygonSideColor(()=>'rgba(7,16,36,0.5)')
+  .polygonCapColor(capColor).polygonSideColor(()=>'rgba(2,7,18,0.92)')
   .polygonStrokeColor(strokeColor).polygonAltitude(polyAlt).polygonsTransitionDuration(260)
   .polygonLabel(f=>{ if(MODE==='gap'){const p=POPALL[ISO_OF(f)];return (p&&p.total>0)?'<div class="gtt">'+p.name+' · '+fmtN(p.total)+' displaced'+(p.covered?' · ✓ SDG data':' · no SDG data')+'</div>':'';} const o=ourOf(f);return inFilter(o)?'<div class="gtt">'+o+' · '+countText(o)+'</div>':'';})
   .onPolygonHover(f=>{ if(MODE==='gap'){const p=f&&POPALL[ISO_OF(f)]; hoverF=(p&&p.total>0)?f:null; world.style.cursor=hoverF?'pointer':'grab'; pause(); refreshPoly(); return;}
@@ -438,7 +456,7 @@ const G=Globe()(world)
   .arcDashLength(0.35).arcDashGap(0.16).arcDashAnimateTime(1500).arcAltitudeAutoScale(0.6).arcCircularResolution(64).arcsTransitionDuration(0)
   .arcLabel(d=>'<div class="gtt">'+d.o+' → '+fmtN(d.n)+' refugees</div>')
   .labelsData([]).labelLat('lat').labelLng('lng').labelText('txt').labelSize(d=>d.big?1.05:0.66).labelDotRadius(d=>d.big?0.34:0.26).labelColor(d=>d.big?'#eafaff':'#ffe0b0').labelResolution(2).labelAltitude(0.035);
-try{const gm=G.globeMaterial(); gm.color&&gm.color.set&&gm.color.set('#123056'); gm.emissive&&gm.emissive.set&&gm.emissive.set('#0a1b38'); gm.emissiveIntensity=0.35; gm.shininess=6;}catch(e){}
+try{const gm=G.globeMaterial(); gm.color&&gm.color.set&&gm.color.set('#0c2240'); gm.emissive&&gm.emissive.set&&gm.emissive.set('#061329'); gm.emissiveIntensity=0.22; gm.shininess=26; gm.specular&&gm.specular.set&&gm.specular.set('#315a82');}catch(e){}
 G.pointOfView({lat:14,lng:30,altitude:2.2},0);
 const ctr=G.controls();ctr.autoRotate=true;ctr.autoRotateSpeed=0.4;ctr.enableDamping=true;ctr.dampingFactor=0.1;ctr.minDistance=190;ctr.maxDistance=540;
 let idle;const pause=()=>{ctr.autoRotate=false;clearTimeout(idle);idle=setTimeout(()=>ctr.autoRotate=true,4500)};
