@@ -202,7 +202,7 @@ body.gapview .legend.gap{display:block}
 <div class="sdgstatus" id="sdgstatus"></div>
 <div class="ui sdgbar" id="sdgbar"></div>
 <svg class="conn" id="conn"><line id="connLine"/><circle id="connPulse" r="6"/><circle id="connDot" r="4"/></svg>
-<script src="https://unpkg.com/globe.gl"></script>
+<script src="https://unpkg.com/deck.gl@9.0.0/dist.min.js"></script>
 <script>
 const SHORT={"State of Palestine":"Palestine","United Kingdom":"UK","DR Congo":"DR Congo","Republic of Moldova":"Moldova","Côte d'Ivoire":"Côte d'Ivoire","Turkmenistan":"Turkmen.","Kyrgyzstan":"Kyrgyz.","Kazakhstan":"Kazakh."};
 const SDG={1:"#E5243B",2:"#DDA63A",3:"#4C9F38",4:"#C5192D",5:"#FF3A21",6:"#26BDE2",7:"#FCC30B",8:"#A21942",10:"#DD1367",11:"#FD9D24",16:"#00689D",17:"#19486A"};
@@ -338,10 +338,10 @@ function capColor(f){ if(MODE==='gap')return gapCap(f); const o=ourOf(f);
   return C_NONE; }  // data-in-hand & no-data both render as plain muted land
 function polyAlt(f){ if(MODE==='gap')return gapAlt(f); const o=ourOf(f); if(inFilter(o)) return isActiveNm(o)?0.085:0.03; if(originSet.has(ISO_OF(f)))return 0.024; return 0.013; }
 function strokeColor(f){const a=MODE==='gap'?(f===hoverF):isActiveNm(ourOf(f)); if(a)return '#eafaff'; if(MODE==='coverage'&&originSet.has(ISO_OF(f)))return '#ffd27a'; return 'rgba(158,180,214,0.18)';}
-function refreshPoly(){G.polygonCapColor(capColor).polygonAltitude(polyAlt).polygonStrokeColor(strokeColor);}
+function refreshPoly(){renderLayers();}
 function setLabel(nm){ const labels=[]; if(nm&&LL[nm])labels.push({lat:LL[nm][0],lng:LL[nm][1],txt:nm,big:true});
   if(MODE==='coverage'&&nm)flowOrigins(nm).forEach(x=>{const c=CENT[x.oi];labels.push({lat:c[0],lng:c[1],txt:x.o+' '+fmtN(x.n),big:false});});
-  G.labelsData(labels); }
+  labelData=labels; }
 // ---- card panel ----
 const panel=document.getElementById('cardpanel');
 const cardbody=document.getElementById('cardbody');
@@ -367,7 +367,7 @@ function gapCap(f){const p=POPALL[ISO_OF(f)]; if(!p||p.total<=0)return C_NONE;
   const c=gapCol(p.total); return f===hoverF?lerp(c,'#ffffff',0.3):c;}
 function gapAlt(f){const p=POPALL[ISO_OF(f)]; if(!p||p.total<=0)return 0.013;
   if(p.covered)return 0.018; return 0.024+0.085*gapScale(p.total)+(f===hoverF?0.02:0);}
-function flyToIso(iso){const c=CENT[iso]; if(c)G.pointOfView({lat:c[0],lng:c[1],altitude:1.6},900);}
+function flyToIso(iso){const c=CENT[iso]; if(c)flyTo(c[0],c[1]);}
 function gapRow(iso,v,rank){const parts=[];
   if(v.ref+v.asy>0)parts.push('Ref '+fmtN(v.ref+v.asy)); if(v.idps>0)parts.push('IDP '+fmtN(v.idps));
   if(v.oip>0)parts.push('Venez '+fmtN(v.oip)); if(v.sta>0)parts.push('Stateless '+fmtN(v.sta));
@@ -381,7 +381,7 @@ function setMode(m){ MODE=m; panel.classList.remove('pinned'); panel.classList.t
   bar.querySelectorAll('.sdgchip').forEach(x=>x.classList.toggle('on',x.dataset.g==='all'));
   popbar.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.p==='all'));
   if(m==='gap'){renderGapList();} else {document.querySelector('#cardpanel .ptitle').innerHTML='<b>Explore the globe</b>'; cardbody.innerHTML=PLACEHOLDER;}
-  if(typeof G!=='undefined'&&G.arcsData){G.arcsData([]);originSet=new Set();}
+  arcData=[];originSet=new Set();
   refreshPoly(); }
 // ===== refugee origins (arcs + card) =====
 const ORIGINS={"BFA": [{"o": "Mali", "oi": "MLI", "n": 39306}, {"o": "Niger", "oi": "NER", "n": 1252}, {"o": "Togo", "oi": "TGO", "n": 489}, {"o": "Central African Rep.", "oi": "CAF", "n": 151}, {"o": "Chad", "oi": "TCD", "n": 60}, {"o": "Türkiye", "oi": "TUR", "n": 37}, {"o": "Burundi", "oi": "BDI", "n": 27}, {"o": "Benin", "oi": "BEN", "n": 22}], "BGD": [{"o": "Myanmar", "oi": "MMR", "n": 1005596}, {"o": "Somalia", "oi": "SOM", "n": 31}, {"o": "Afghanistan", "oi": "AFG", "n": 5}, {"o": "Palestinian", "oi": "PSE", "n": 5}], "CMR": [{"o": "Central African Rep.", "oi": "CAF", "n": 297618}, {"o": "Nigeria", "oi": "NGA", "n": 132509}, {"o": "Niger", "oi": "NER", "n": 6490}, {"o": "Chad", "oi": "TCD", "n": 4278}, {"o": "Dem. Rep. of the Congo", "oi": "COD", "n": 673}, {"o": "Sudan", "oi": "SDN", "n": 499}, {"o": "Mali", "oi": "MLI", "n": 457}, {"o": "Rwanda", "oi": "RWA", "n": 443}], "COD": [{"o": "Central African Rep.", "oi": "CAF", "n": 206254}, {"o": "Rwanda", "oi": "RWA", "n": 204359}, {"o": "South Sudan", "oi": "SSD", "n": 55559}, {"o": "Burundi", "oi": "BDI", "n": 50878}, {"o": "Congo", "oi": "COG", "n": 428}, {"o": "Angola", "oi": "AGO", "n": 423}, {"o": "Somalia", "oi": "SOM", "n": 332}, {"o": "Sudan", "oi": "SDN", "n": 69}], "COL": [{"o": "Venezuela (Bolivarian Republic of)", "oi": "VEN", "n": 29364}, {"o": "Cuba", "oi": "CUB", "n": 621}, {"o": "Unknown ", "oi": "UNK", "n": 269}, {"o": "Ecuador", "oi": "ECU", "n": 139}, {"o": "Russian Federation", "oi": "RUS", "n": 49}, {"o": "Ukraine", "oi": "UKR", "n": 34}, {"o": "Peru", "oi": "PER", "n": 25}, {"o": "Syrian Arab Rep.", "oi": "SYR", "n": 13}], "ECU": [{"o": "Colombia", "oi": "COL", "n": 23336}, {"o": "Venezuela (Bolivarian Republic of)", "oi": "VEN", "n": 5681}, {"o": "Cuba", "oi": "CUB", "n": 189}, {"o": "Syrian Arab Rep.", "oi": "SYR", "n": 171}, {"o": "Yemen", "oi": "YEM", "n": 140}, {"o": "Ukraine", "oi": "UKR", "n": 110}, {"o": "Russian Federation", "oi": "RUS", "n": 81}, {"o": "Afghanistan", "oi": "AFG", "n": 74}], "EGY": [{"o": "Sudan", "oi": "SDN", "n": 602702}, {"o": "Syrian Arab Rep.", "oi": "SYR", "n": 147797}, {"o": "South Sudan", "oi": "SSD", "n": 46163}, {"o": "Eritrea", "oi": "ERI", "n": 39260}, {"o": "Ethiopia", "oi": "ETH", "n": 18019}, {"o": "Yemen", "oi": "YEM", "n": 8144}, {"o": "Somalia", "oi": "SOM", "n": 7895}, {"o": "Iraq", "oi": "IRQ", "n": 4379}], "GBR": [{"o": "Ukraine", "oi": "UKR", "n": 256086}, {"o": "Afghanistan", "oi": "AFG", "n": 65907}, {"o": "Iran (Islamic Rep. of)", "oi": "IRN", "n": 46731}, {"o": "Eritrea", "oi": "ERI", "n": 28271}, {"o": "Syrian Arab Rep.", "oi": "SYR", "n": 26643}, {"o": "Sudan", "oi": "SDN", "n": 23373}, {"o": "Pakistan", "oi": "PAK", "n": 22165}, {"o": "Iraq", "oi": "IRQ", "n": 19995}], "HND": [{"o": "Nicaragua", "oi": "NIC", "n": 199}, {"o": "Venezuela (Bolivarian Republic of)", "oi": "VEN", "n": 71}, {"o": "El Salvador", "oi": "SLV", "n": 27}, {"o": "Colombia", "oi": "COL", "n": 22}, {"o": "Cuba", "oi": "CUB", "n": 12}, {"o": "Guatemala", "oi": "GTM", "n": 5}, {"o": "Mexico", "oi": "MEX", "n": 5}], "ITA": [{"o": "Ukraine", "oi": "UKR", "n": 169655}, {"o": "Bangladesh", "oi": "BGD", "n": 44026}, {"o": "Pakistan", "oi": "PAK", "n": 40008}, {"o": "Egypt", "oi": "EGY", "n": 25024}, {"o": "Nigeria", "oi": "NGA", "n": 23971}, {"o": "Peru", "oi": "PER", "n": 22185}, {"o": "Afghanistan", "oi": "AFG", "n": 20879}, {"o": "Mali", "oi": "MLI", "n": 18377}], "JOR": [{"o": "Syrian Arab Rep.", "oi": "SYR", "n": 611473}, {"o": "Iraq", "oi": "IRQ", "n": 46460}, {"o": "Yemen", "oi": "YEM", "n": 11413}, {"o": "Sudan", "oi": "SDN", "n": 4900}, {"o": "Somalia", "oi": "SOM", "n": 457}, {"o": "Egypt", "oi": "EGY", "n": 299}, {"o": "Libya", "oi": "LBY", "n": 57}, {"o": "Lebanon", "oi": "LBN", "n": 43}], "KEN": [{"o": "Somalia", "oi": "SOM", "n": 468507}, {"o": "South Sudan", "oi": "SSD", "n": 192910}, {"o": "Dem. Rep. of the Congo", "oi": "COD", "n": 63203}, {"o": "Ethiopia", "oi": "ETH", "n": 42227}, {"o": "Burundi", "oi": "BDI", "n": 32380}, {"o": "Sudan", "oi": "SDN", "n": 12169}, {"o": "Uganda", "oi": "UGA", "n": 4035}, {"o": "Eritrea", "oi": "ERI", "n": 3923}], "LBN": [{"o": "Syrian Arab Rep.", "oi": "SYR", "n": 755426}, {"o": "Iraq", "oi": "IRQ", "n": 4400}, {"o": "Sudan", "oi": "SDN", "n": 2580}, {"o": "Ethiopia", "oi": "ETH", "n": 1441}, {"o": "Egypt", "oi": "EGY", "n": 543}, {"o": "Bangladesh", "oi": "BGD", "n": 263}, {"o": "Jordan", "oi": "JOR", "n": 112}, {"o": "Yemen", "oi": "YEM", "n": 97}], "MAR": [{"o": "Syrian Arab Rep.", "oi": "SYR", "n": 5448}, {"o": "Guinea", "oi": "GIN", "n": 2428}, {"o": "Senegal", "oi": "SEN", "n": 1911}, {"o": "Sudan", "oi": "SDN", "n": 1819}, {"o": "Cote d'Ivoire", "oi": "CIV", "n": 1602}, {"o": "Central African Rep.", "oi": "CAF", "n": 1293}, {"o": "Mali", "oi": "MLI", "n": 717}, {"o": "Cameroon", "oi": "CMR", "n": 545}], "MDA": [{"o": "Ukraine", "oi": "UKR", "n": 135861}, {"o": "Syrian Arab Rep.", "oi": "SYR", "n": 280}, {"o": "Russian Federation", "oi": "RUS", "n": 221}, {"o": "Türkiye", "oi": "TUR", "n": 106}, {"o": "Bangladesh", "oi": "BGD", "n": 36}, {"o": "Belarus", "oi": "BLR", "n": 29}, {"o": "Tajikistan", "oi": "TJK", "n": 29}, {"o": "Azerbaijan", "oi": "AZE", "n": 26}], "MEX": [{"o": "Honduras", "oi": "HND", "n": 135754}, {"o": "Haiti", "oi": "HTI", "n": 87725}, {"o": "Cuba", "oi": "CUB", "n": 49016}, {"o": "Venezuela (Bolivarian Republic of)", "oi": "VEN", "n": 41668}, {"o": "El Salvador", "oi": "SLV", "n": 33072}, {"o": "Guatemala", "oi": "GTM", "n": 15899}, {"o": "Nicaragua", "oi": "NIC", "n": 11655}, {"o": "Chile", "oi": "CHL", "n": 8489}], "MOZ": [{"o": "Dem. Rep. of the Congo", "oi": "COD", "n": 9340}, {"o": "Burundi", "oi": "BDI", "n": 8559}, {"o": "Rwanda", "oi": "RWA", "n": 3520}, {"o": "Somalia", "oi": "SOM", "n": 2252}, {"o": "Cote d'Ivoire", "oi": "CIV", "n": 428}, {"o": "Congo", "oi": "COG", "n": 33}, {"o": "Türkiye", "oi": "TUR", "n": 30}, {"o": "Sudan", "oi": "SDN", "n": 29}], "MWI": [{"o": "Dem. Rep. of the Congo", "oi": "COD", "n": 36777}, {"o": "Burundi", "oi": "BDI", "n": 12413}, {"o": "Rwanda", "oi": "RWA", "n": 7052}, {"o": "Ethiopia", "oi": "ETH", "n": 185}, {"o": "Somalia", "oi": "SOM", "n": 173}, {"o": "Mozambique", "oi": "MOZ", "n": 35}, {"o": "Uganda", "oi": "UGA", "n": 9}, {"o": "Eritrea", "oi": "ERI", "n": 5}], "NGA": [{"o": "Cameroon", "oi": "CMR", "n": 106726}, {"o": "Niger", "oi": "NER", "n": 14976}, {"o": "Syrian Arab Rep.", "oi": "SYR", "n": 1639}, {"o": "Central African Rep.", "oi": "CAF", "n": 1199}, {"o": "Sudan", "oi": "SDN", "n": 765}, {"o": "Dem. Rep. of the Congo", "oi": "COD", "n": 633}, {"o": "Türkiye", "oi": "TUR", "n": 457}, {"o": "Palestinian", "oi": "PSE", "n": 127}], "PAK": [{"o": "Afghanistan", "oi": "AFG", "n": 1758574}, {"o": "Somalia", "oi": "SOM", "n": 210}, {"o": "Yemen", "oi": "YEM", "n": 182}, {"o": "Syrian Arab Rep.", "oi": "SYR", "n": 79}, {"o": "Iran (Islamic Rep. of)", "oi": "IRN", "n": 71}, {"o": "Myanmar", "oi": "MMR", "n": 60}, {"o": "Iraq", "oi": "IRQ", "n": 33}, {"o": "Palestinian", "oi": "PSE", "n": 26}], "PER": [{"o": "Venezuela (Bolivarian Republic of)", "oi": "VEN", "n": 527674}, {"o": "Cuba", "oi": "CUB", "n": 8186}, {"o": "Colombia", "oi": "COL", "n": 5633}, {"o": "Ecuador", "oi": "ECU", "n": 817}, {"o": "Unknown ", "oi": "UNK", "n": 764}, {"o": "Haiti", "oi": "HTI", "n": 597}, {"o": "Dominican Rep.", "oi": "DOM", "n": 227}, {"o": "Türkiye", "oi": "TUR", "n": 142}], "RWA": [{"o": "Dem. Rep. of the Congo", "oi": "COD", "n": 77876}, {"o": "Burundi", "oi": "BDI", "n": 49629}, {"o": "Sudan", "oi": "SDN", "n": 444}, {"o": "Eritrea", "oi": "ERI", "n": 292}, {"o": "Ethiopia", "oi": "ETH", "n": 105}, {"o": "South Sudan", "oi": "SSD", "n": 65}, {"o": "Afghanistan", "oi": "AFG", "n": 61}, {"o": "Somalia", "oi": "SOM", "n": 60}], "SOM": [{"o": "Ethiopia", "oi": "ETH", "n": 27041}, {"o": "Yemen", "oi": "YEM", "n": 12332}, {"o": "Syrian Arab Rep.", "oi": "SYR", "n": 1769}, {"o": "Sudan", "oi": "SDN", "n": 315}, {"o": "United Rep. of Tanzania", "oi": "TZA", "n": 141}, {"o": "Eritrea", "oi": "ERI", "n": 110}, {"o": "Palestinian", "oi": "PSE", "n": 12}, {"o": "Lebanon", "oi": "LBN", "n": 10}], "SSD": [{"o": "Sudan", "oi": "SDN", "n": 487664}, {"o": "Dem. Rep. of the Congo", "oi": "COD", "n": 14104}, {"o": "Ethiopia", "oi": "ETH", "n": 7042}, {"o": "Eritrea", "oi": "ERI", "n": 3812}, {"o": "Central African Rep.", "oi": "CAF", "n": 2761}, {"o": "Burundi", "oi": "BDI", "n": 1598}, {"o": "Uganda", "oi": "UGA", "n": 345}, {"o": "Rwanda", "oi": "RWA", "n": 40}], "UGA": [{"o": "South Sudan", "oi": "SSD", "n": 975079}, {"o": "Dem. Rep. of the Congo", "oi": "COD", "n": 561880}, {"o": "Sudan", "oi": "SDN", "n": 65535}, {"o": "Eritrea", "oi": "ERI", "n": 59480}, {"o": "Somalia", "oi": "SOM", "n": 50832}, {"o": "Burundi", "oi": "BDI", "n": 42970}, {"o": "Rwanda", "oi": "RWA", "n": 24215}, {"o": "Ethiopia", "oi": "ETH", "n": 14834}], "ZMB": [{"o": "Dem. Rep. of the Congo", "oi": "COD", "n": 67524}, {"o": "Burundi", "oi": "BDI", "n": 14071}, {"o": "Somalia", "oi": "SOM", "n": 5030}, {"o": "Rwanda", "oi": "RWA", "n": 987}, {"o": "Uganda", "oi": "UGA", "n": 553}, {"o": "Eritrea", "oi": "ERI", "n": 319}, {"o": "Ethiopia", "oi": "ETH", "n": 130}, {"o": "Syrian Arab Rep.", "oi": "SYR", "n": 71}]};
@@ -393,15 +393,15 @@ function originSection(nm){const r=originsFor(nm);if(!r||!r.length)return'';
   return rows?'<div class="popstrip orig"><div class="poph">Where refugees come from · UNHCR 2024</div>'+rows+'</div>':'';}
 let originSet=new Set();
 function flowOrigins(nm){const r=originsFor(nm);if(!r||!r.length)return[];const mx=r[0].n;return r.filter(x=>x.n>=Math.max(300,mx*0.02)&&CENT[x.oi]).slice(0,8);}
-function setArcs(nm){ if(MODE!=='coverage'||!nm){G.arcsData([]);originSet=new Set();return;}
-  const end=LL[nm],fo=flowOrigins(nm); if(!end||!fo.length){G.arcsData([]);originSet=new Set();return;}
-  G.arcsData(fo.map(x=>{const c=CENT[x.oi];return {sLat:c[0],sLng:c[1],eLat:end[0],eLng:end[1],n:x.n,o:x.o};}));
+function setArcs(nm){ if(MODE!=='coverage'||!nm){arcData=[];originSet=new Set();return;}
+  const end=LL[nm],fo=flowOrigins(nm); if(!end||!fo.length){arcData=[];originSet=new Set();return;}
+  arcData=fo.map(x=>{const c=CENT[x.oi];return {sLat:c[0],sLng:c[1],eLat:end[0],eLng:end[1],n:x.n,o:x.o};});
   originSet=new Set(fo.map(x=>x.oi)); }
 panel.addEventListener('click',e=>{
   const gr=e.target.closest('.gaprow');
   if(gr){const iso=gr.dataset.iso;hoverF=FEAT[iso]||null;flyToIso(iso);refreshPoly();return;}
   const loc=e.target.closest('.loc');
-  if(loc && lastNm){const ll=LL[lastNm];if(ll)G.pointOfView({lat:ll[0],lng:ll[1],altitude:1.5},900);return;}
+  if(loc && lastNm){const ll=LL[lastNm];if(ll)flyTo(ll[0],ll[1]);return;}
   const b=e.target.closest('.ptog button'); if(!b)return;
   SHOWALL=(b.dataset.m==='a');
   document.querySelectorAll('#cardpanel .ptog button').forEach(x=>x.classList.toggle('on',x===b));
@@ -437,43 +437,67 @@ modetog.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)re
   setMode(b.dataset.mode);
 });
 // ---- globe ----
-const world=document.getElementById('globe');
-const G=Globe()(world)
-  .backgroundColor('rgba(0,0,0,0)')
-  .showAtmosphere(true).atmosphereColor('#6ad0d9').atmosphereAltitude(0.19)
-  .showGraticules(false)
-  .polygonsData(WORLDGEO.features)
-  .polygonCapColor(capColor).polygonSideColor(()=>'rgba(2,7,18,0.92)')
-  .polygonStrokeColor(strokeColor).polygonAltitude(polyAlt).polygonsTransitionDuration(260)
-  .polygonLabel(f=>{ if(MODE==='gap'){const p=POPALL[ISO_OF(f)];return (p&&p.total>0)?'<div class="gtt">'+p.name+' · '+fmtN(p.total)+' displaced'+(p.covered?' · ✓ SDG data':' · no SDG data')+'</div>':'';} const o=ourOf(f);return inFilter(o)?'<div class="gtt">'+o+' · '+countText(o)+'</div>':'';})
-  .onPolygonHover(f=>{ if(MODE==='gap'){const p=f&&POPALL[ISO_OF(f)]; hoverF=(p&&p.total>0)?f:null; world.style.cursor=hoverF?'pointer':'grab'; pause(); refreshPoly(); return;}
-    if(f && inFilter(ourOf(f))){hoverF=f;const o=ourOf(f);lastNm=o;renderCard(o);setLabel(o);setArcs(o);world.style.cursor='pointer';}
-    else {hoverF=null;world.style.cursor='grab';setLabel(pinNm);setArcs(pinNm);} pause(); refreshPoly(); })
-  .onPolygonClick(f=>{ if(MODE==='gap'){const iso=ISO_OF(f),p=POPALL[iso]; if(p&&p.total>0){hoverF=f;flyToIso(iso);refreshPoly();} return;}
-    const o=ourOf(f); if(inFilter(o)){pinNm=o;lastNm=o;panel.classList.add('pinned');renderCard(o);setLabel(o);setArcs(o);const ll=LL[o];if(ll)G.pointOfView({lat:ll[0],lng:ll[1],altitude:1.5},900);refreshPoly();} })
-  .arcsData([]).arcStartLat('sLat').arcStartLng('sLng').arcEndLat('eLat').arcEndLng('eLng')
-  .arcColor(d=>{const t=Math.min(1,Math.sqrt(d.n)/Math.sqrt(maxArc));return ['rgba(255,196,110,'+(0.25+0.35*t).toFixed(2)+')','rgba(150,236,255,0.98)'];}).arcStroke(d=>0.7+2.8*Math.sqrt(d.n)/Math.sqrt(maxArc))
-  .arcDashLength(0.35).arcDashGap(0.16).arcDashAnimateTime(1500).arcAltitudeAutoScale(0.6).arcCircularResolution(64).arcsTransitionDuration(0)
-  .arcLabel(d=>'<div class="gtt">'+d.o+' → '+fmtN(d.n)+' refugees</div>')
-  .labelsData([]).labelLat('lat').labelLng('lng').labelText('txt').labelSize(d=>d.big?1.05:0.66).labelDotRadius(d=>d.big?0.34:0.26).labelColor(d=>d.big?'#eafaff':'#ffe0b0').labelResolution(2).labelAltitude(0.035);
-try{const gm=G.globeMaterial(); gm.color&&gm.color.set&&gm.color.set('#0b2543'); gm.emissive&&gm.emissive.set&&gm.emissive.set('#06142c'); gm.emissiveIntensity=0.2; gm.shininess=40; gm.specular&&gm.specular.set&&gm.specular.set('#4675a6');}catch(e){}
-G.pointOfView({lat:14,lng:30,altitude:2.2},0);
-const ctr=G.controls();ctr.autoRotate=true;ctr.autoRotateSpeed=0.4;ctr.enableDamping=true;ctr.dampingFactor=0.1;ctr.minDistance=190;ctr.maxDistance=540;
-let idle;const pause=()=>{ctr.autoRotate=false;clearTimeout(idle);idle=setTimeout(()=>ctr.autoRotate=true,4500)};
-world.addEventListener('pointerdown',pause);world.addEventListener('wheel',pause,{passive:true});
-addEventListener('resize',()=>{G.width(innerWidth).height(innerHeight)});
-G.width(innerWidth).height(innerHeight);
+// ================= deck.gl globe engine =================
+const {Deck,_GlobeView,GeoJsonLayer,ArcLayer,SolidPolygonLayer,TextLayer,LinearInterpolator}=deck;
+let dk=null, arcData=[], labelData=[], autoRot=true, idleT=null, VER=0;
+let vs={longitude:30,latitude:14,zoom:0,minZoom:-0.5,maxZoom:4};
+function cssToArr(c){ if(!c)return [0,0,0,0]; if(c[0]==='#'){const x=hx(c);return [x[0],x[1],x[2],255];}
+  const m=c.match(/rgba?\(([^)]+)\)/); if(!m)return [0,0,0,0]; const p=m[1].split(',').map(parseFloat);
+  return [p[0]|0,p[1]|0,p[2]|0, p.length>3?Math.round(p[3]*255):255]; }
+function pause(){ autoRot=false; clearTimeout(idleT); idleT=setTimeout(()=>autoRot=true,4500); }
+function flyTo(lat,lng){ pause(); let tl=lng; while(tl-vs.longitude>180)tl-=360; while(tl-vs.longitude<-180)tl+=360; vs={...vs,latitude:lat,longitude:tl,transitionDuration:800,transitionInterpolator:new LinearInterpolator(['longitude','latitude'])}; dk&&dk.setProps({viewState:vs}); }
+function onHover(info){ const f=info&&info.object;
+  if(MODE==='gap'){ const p=f&&POPALL[ISO_OF(f)]; hoverF=(p&&p.total>0)?f:null; pause(); refreshPoly(); return; }
+  if(f && inFilter(ourOf(f))){ hoverF=f; const o=ourOf(f); lastNm=o; renderCard(o); setLabel(o); setArcs(o); }
+  else { hoverF=null; setLabel(pinNm); setArcs(pinNm); }
+  pause(); refreshPoly();
+}
+function onClick(info){ const f=info&&info.object; if(!f)return;
+  if(MODE==='gap'){ const iso=ISO_OF(f),p=POPALL[iso]; if(p&&p.total>0){hoverF=f;flyToIso(iso);refreshPoly();} return; }
+  const o=ourOf(f); if(inFilter(o)){ pinNm=o;lastNm=o;panel.classList.add('pinned');renderCard(o);setLabel(o);setArcs(o);const c=LL[o];if(c)flyTo(c[0],c[1]);refreshPoly(); }
+}
+function renderLayers(){ if(!dk)return; VER++;
+  dk.setProps({layers:[
+    new SolidPolygonLayer({id:'ocean',data:[{p:[[-180,-89.9],[180,-89.9],[180,89.9],[-180,89.9]]}],getPolygon:d=>d.p,getFillColor:[9,28,52],stroked:false,getPolygonOffset:()=>[0,100]}),
+    new GeoJsonLayer({id:'countries',data:WORLDGEO,pickable:true,filled:true,stroked:true,
+      getFillColor:f=>cssToArr(capColor(f)),
+      getLineColor:f=>cssToArr(strokeColor(f)),
+      lineWidthUnits:'pixels',lineWidthMinPixels:0.4,
+      getLineWidth:f=>(isActiveNm(ourOf(f))||(MODE==='gap'&&f===hoverF))?2.2:0.5,
+      updateTriggers:{getFillColor:VER,getLineColor:VER,getLineWidth:VER},
+      onHover:onHover,onClick:onClick,parameters:{depthTest:true}}),
+    new ArcLayer({id:'arcs',data:arcData,greatCircle:true,widthUnits:'pixels',
+      getSourcePosition:d=>[d.sLng,d.sLat],getTargetPosition:d=>[d.eLng,d.eLat],
+      getSourceColor:[255,196,110,110],getTargetColor:[150,236,255,235],
+      getWidth:d=>1+2.8*Math.sqrt(d.n)/Math.sqrt(maxArc),getHeight:0.5}),
+    new TextLayer({id:'labels',data:labelData,getPosition:d=>[d.lng,d.lat],getText:d=>d.txt,
+      getSize:d=>d.big?16:11,getColor:d=>d.big?[234,250,255]:[255,224,176],
+      getTextAnchor:'middle',getAlignmentBaseline:'bottom',billboard:true,fontWeight:700,
+      outlineWidth:3,outlineColor:[7,16,36],fontSettings:{sdf:true}})
+  ]});
+}
+dk=new Deck({ parent:document.getElementById('globe'),
+  views:new _GlobeView(), viewState:vs, controller:{dragRotate:true,inertia:150},
+  getCursor:({isHovering})=>isHovering?'pointer':'grab',
+  onViewStateChange:({viewState,interactionState})=>{ vs=viewState; if(interactionState&&(interactionState.isDragging||interactionState.isZooming||interactionState.isPanning))pause(); },
+  parameters:{clearColor:[0,0,0,0]}, layers:[] });
+renderLayers();
+function spin(){ requestAnimationFrame(spin); if(autoRot&&dk){ vs={longitude:(vs.longitude+0.12)%360,latitude:vs.latitude,zoom:vs.zoom,minZoom:vs.minZoom,maxZoom:vs.maxZoom}; dk.setProps({viewState:vs}); } }
+requestAnimationFrame(spin);
+addEventListener('resize',()=>{ if(dk)dk.setProps({width:innerWidth,height:innerHeight}); });
 // ---- live card <-> country connector line ----
 const conn=document.getElementById('conn'),connLine=document.getElementById('connLine'),connDot=document.getElementById('connDot'),connPulse=document.getElementById('connPulse');
 function gcCos(la1,lo1,la2,lo2){const d=Math.PI/180,a=la1*d,b=la2*d,dl=(lo2-lo1)*d;return Math.sin(a)*Math.sin(b)+Math.cos(a)*Math.cos(b)*Math.cos(dl);}
 function updateConnector(){ requestAnimationFrame(updateConnector);
   const nm=(MODE==='coverage')?lastNm:null;
-  if(!nm||!LL[nm]||!G.getScreenCoords){conn.classList.remove('show');return;}
-  const pov=G.pointOfView(); if(gcCos(pov.lat,pov.lng,LL[nm][0],LL[nm][1])<0.12){conn.classList.remove('show');return;}
-  const sc=G.getScreenCoords(LL[nm][0],LL[nm][1],0.04); if(!sc||isNaN(sc.x)){conn.classList.remove('show');return;}
+  if(!nm||!LL[nm]||!dk){conn.classList.remove('show');return;}
+  if(gcCos(vs.latitude,vs.longitude,LL[nm][0],LL[nm][1])<0.1){conn.classList.remove('show');return;}
+  let vp; try{vp=dk.getViewports()[0];}catch(e){vp=null;} if(!vp){conn.classList.remove('show');return;}
+  let px; try{px=vp.project([LL[nm][1],LL[nm][0]]);}catch(e){px=null;}
+  if(!px||isNaN(px[0])){conn.classList.remove('show');return;}
   const pr=panel.getBoundingClientRect(); const tx=pr.left+2, ty=pr.top+26;
-  connLine.setAttribute('x1',tx);connLine.setAttribute('y1',ty);connLine.setAttribute('x2',sc.x);connLine.setAttribute('y2',sc.y);
-  [connDot,connPulse].forEach(c=>{c.setAttribute('cx',sc.x);c.setAttribute('cy',sc.y);});
+  connLine.setAttribute('x1',tx);connLine.setAttribute('y1',ty);connLine.setAttribute('x2',px[0]);connLine.setAttribute('y2',px[1]);
+  [connDot,connPulse].forEach(c=>{c.setAttribute('cx',px[0]);c.setAttribute('cy',px[1]);});
   conn.classList.add('show');
 }
 requestAnimationFrame(updateConnector);
