@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SDG Coverage Globe</title>
+<meta name="description" content="A 3D globe of SDG indicators for refugees, IDPs and stateless people, from GAIN examples — EGRISS.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0a1430;color:#eaf0fa;font-family:"IBM Plex Sans",system-ui,sans-serif;overflow:hidden}
+#globe{position:fixed;inset:0}
+.ui{position:fixed;z-index:10;pointer-events:none}
+.top{top:0;left:0;right:0;padding:20px 24px;display:flex;align-items:flex-start;justify-content:space-between;gap:18px;background:linear-gradient(180deg,rgba(10,20,48,.92),rgba(10,20,48,0))}
+.brand{pointer-events:auto}
+.ey{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#4cc3c9;font-weight:600}
+h1{font-family:"Poppins",sans-serif;font-weight:800;font-size:clamp(1.3rem,2.6vw,1.9rem);margin:.18em 0 .1em;letter-spacing:-.02em;color:#fff;line-height:1.05;max-width:20ch}
+.sub{font-size:13px;color:#aebbd6;max-width:52ch;margin:0}
+.kpis{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.kpi{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:8px 13px;backdrop-filter:blur(6px)}
+.kpi b{font-family:"Poppins";font-weight:800;font-size:1.15rem;display:block;line-height:1;color:#fff}
+.kpi b i{font-style:normal;font-size:.55em;color:#8fa0c2;font-weight:600}
+.kpi span{font-size:10.5px;color:#aebbd6;letter-spacing:.02em}
+.links{pointer-events:auto;display:flex;gap:8px;flex-shrink:0}
+.lk{font-family:"IBM Plex Sans";font-weight:600;font-size:12.5px;color:#0c1b3d;background:#4cc3c9;border-radius:7px;padding:9px 15px;text-decoration:none;white-space:nowrap;transition:transform .15s,background .15s}
+.lk.ghost{background:rgba(255,255,255,.08);color:#dfe8f7;border:1px solid rgba(255,255,255,.18)}
+.lk:hover{transform:translateY(-1px);background:#63cdd3}.lk.ghost:hover{background:rgba(255,255,255,.16)}
+.legend{left:24px;bottom:22px;pointer-events:auto;background:rgba(10,20,48,.6);border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:14px 16px;backdrop-filter:blur(8px);max-width:260px}
+.legend h3{font-family:"Poppins";font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#aebbd6;margin:0 0 10px;font-weight:700}
+.lrow{display:flex;align-items:center;gap:10px;font-size:12.5px;color:#dbe4f5;margin:7px 0}
+.sw{width:14px;height:14px;border-radius:4px;flex-shrink:0;box-shadow:0 0 10px currentColor}
+.sw.calc{background:#4cc3c9;color:#4cc3c9}.sw.rep{background:#3b71b9;color:#3b71b9}
+.dot{width:12px;height:12px;border-radius:50%;border:2px solid #7fe0e4;flex-shrink:0}
+.hint{font-size:11px;color:#8fa0c2;margin-top:11px;line-height:1.5}
+.gtt{font-family:"IBM Plex Sans";background:rgba(10,20,48,.95);border:1px solid rgba(76,195,201,.5);border-radius:10px;padding:9px 12px;color:#eaf0fa;font-size:12.5px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.gtt b{color:#fff;font-weight:700}.gtt .t{font-family:"IBM Plex Mono";font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.gtt .t.calc{color:#4cc3c9}.gtt .t.rep{color:#7fa9e0}.gtt .t.data{color:#8fa0c2}
+@media(max-width:620px){.sub{display:none}.links{flex-direction:column}}
+</style>
+</head>
+<body>
+<div id="globe"></div>
+<div class="ui top">
+  <div class="brand">
+    <div class="ey">EGRISS · GAIN Workstream</div>
+    <h1>SDG coverage for the forcibly displaced</h1>
+    <p class="sub">Every bar is a country where we hold SDG indicators for refugees, IDPs or stateless people — height is how many. Rings mark data already in hand, awaiting a value.</p>
+    <div class="kpis">
+      <div class="kpi"><b>27</b><span>countries with values</span></div>
+      <div class="kpi"><b>110</b><span>SDG values</span></div>
+      <div class="kpi"><b>63</b><span>priority</span></div>
+      <div class="kpi"><b>67<i>%</i></b><span>government</span></div>
+    </div>
+  </div>
+  <div class="links">
+    <a class="lk" href="sdg-map.html">2D map ↗</a>
+    <a class="lk ghost" href="index.html">Home</a>
+  </div>
+</div>
+<div class="ui legend">
+  <h3>How to read</h3>
+  <div class="lrow"><span class="sw calc"></span>Computed from microdata</div>
+  <div class="lrow"><span class="sw rep"></span>Extracted from reports</div>
+  <div class="lrow"><span class="dot"></span>Data in hand · no value yet</div>
+  <div class="hint">Taller bar = more SDG values. Drag to rotate · scroll to zoom · click a country to focus.</div>
+</div>
+<script src="https://unpkg.com/globe.gl"></script>
+<script>
+const DATA=[{"c":"Mozambique","lat":-18.7,"lng":35.5,"n":6,"prio":6,"tier":"calc"},{"c":"Cameroon","lat":5.7,"lng":12.7,"n":2,"prio":1,"tier":"calc"},{"c":"South Sudan","lat":7.3,"lng":30.3,"n":6,"prio":3,"tier":"calc"},{"c":"Pakistan","lat":30.4,"lng":69.3,"n":6,"prio":4,"tier":"calc"},{"c":"DR Congo","lat":-2.9,"lng":23.6,"n":4,"prio":2,"tier":"calc"},{"c":"Zambia","lat":-13.1,"lng":27.8,"n":4,"prio":2,"tier":"calc"},{"c":"Kenya","lat":0.2,"lng":37.9,"n":6,"prio":4,"tier":"calc"},{"c":"Ecuador","lat":-1.4,"lng":-78.2,"n":1,"prio":0,"tier":"calc"},{"c":"Bangladesh","lat":23.7,"lng":90.4,"n":1,"prio":0,"tier":"calc"},{"c":"Malawi","lat":-13.3,"lng":34.3,"n":6,"prio":4,"tier":"calc"},{"c":"Nigeria","lat":9.1,"lng":8.7,"n":3,"prio":2,"tier":"calc"},{"c":"Italy","lat":42.8,"lng":12.6,"n":1,"prio":1,"tier":"rep"},{"c":"Jordan","lat":31.2,"lng":36.5,"n":1,"prio":1,"tier":"rep"},{"c":"Egypt","lat":26.8,"lng":30.8,"n":2,"prio":1,"tier":"rep"},{"c":"Honduras","lat":14.8,"lng":-86.6,"n":4,"prio":2,"tier":"rep"},{"c":"Somalia","lat":5.2,"lng":46.2,"n":3,"prio":2,"tier":"rep"},{"c":"State of Palestine","lat":31.9,"lng":35.2,"n":3,"prio":3,"tier":"rep"},{"c":"Uganda","lat":1.4,"lng":32.3,"n":5,"prio":3,"tier":"rep"},{"c":"United Kingdom","lat":54,"lng":-2.4,"n":1,"prio":1,"tier":"rep"},{"c":"Colombia","lat":4.1,"lng":-72.9,"n":1,"prio":1,"tier":"rep"},{"c":"Burkina Faso","lat":12.2,"lng":-1.6,"n":2,"prio":1,"tier":"rep"},{"c":"Peru","lat":-9.2,"lng":-75,"n":2,"prio":2,"tier":"rep"},{"c":"Morocco","lat":31.8,"lng":-7.1,"n":5,"prio":4,"tier":"rep"},{"c":"Rwanda","lat":-1.9,"lng":29.9,"n":5,"prio":3,"tier":"rep"},{"c":"Mexico","lat":23.6,"lng":-102.6,"n":1,"prio":0,"tier":"rep"},{"c":"Moldova","lat":47.4,"lng":28.4,"n":1,"prio":1,"tier":"rep"},{"c":"Lebanon","lat":33.9,"lng":35.9,"n":25,"prio":6,"tier":"rep"},{"c":"Armenia","lat":40.1,"lng":45,"n":0,"prio":0,"tier":"data"},{"c":"Norway","lat":62,"lng":9.3,"n":0,"prio":0,"tier":"data"},{"c":"Djibouti","lat":11.8,"lng":42.6,"n":0,"prio":0,"tier":"data"},{"c":"Ethiopia","lat":9.1,"lng":40.5,"n":0,"prio":0,"tier":"data"},{"c":"Philippines","lat":12.9,"lng":121.8,"n":0,"prio":0,"tier":"data"},{"c":"Poland","lat":52.1,"lng":19.4,"n":0,"prio":0,"tier":"data"},{"c":"France","lat":46.6,"lng":2.5,"n":0,"prio":0,"tier":"data"},{"c":"Germany","lat":51.1,"lng":10.4,"n":0,"prio":0,"tier":"data"},{"c":"Iraq","lat":33.2,"lng":43.7,"n":0,"prio":0,"tier":"data"},{"c":"Liechtenstein","lat":47.2,"lng":9.5,"n":0,"prio":0,"tier":"data"},{"c":"South Africa","lat":-29,"lng":24.7,"n":0,"prio":0,"tier":"data"},{"c":"Belize","lat":17.2,"lng":-88.5,"n":0,"prio":0,"tier":"data"},{"c":"Cambodia","lat":12.6,"lng":104.9,"n":0,"prio":0,"tier":"data"},{"c":"Canada","lat":56.1,"lng":-106.3,"n":0,"prio":0,"tier":"data"},{"c":"Chad","lat":15.5,"lng":18.7,"n":0,"prio":0,"tier":"data"},{"c":"Côte d'Ivoire","lat":7.5,"lng":-5.5,"n":0,"prio":0,"tier":"data"},{"c":"Georgia","lat":42.3,"lng":43.4,"n":0,"prio":0,"tier":"data"},{"c":"Indonesia","lat":-2.5,"lng":118,"n":0,"prio":0,"tier":"data"},{"c":"Kazakhstan","lat":48,"lng":66.9,"n":0,"prio":0,"tier":"data"},{"c":"Kosovo","lat":42.6,"lng":20.9,"n":0,"prio":0,"tier":"data"},{"c":"Kyrgyzstan","lat":41.2,"lng":74.8,"n":0,"prio":0,"tier":"data"},{"c":"Mali","lat":17.6,"lng":-4,"n":0,"prio":0,"tier":"data"},{"c":"Spain","lat":40.2,"lng":-3.7,"n":0,"prio":0,"tier":"data"},{"c":"Sudan","lat":15.5,"lng":30.2,"n":0,"prio":0,"tier":"data"},{"c":"Thailand","lat":15.1,"lng":101,"n":0,"prio":0,"tier":"data"},{"c":"Turkmenistan","lat":38.9,"lng":59.6,"n":0,"prio":0,"tier":"data"},{"c":"Haiti","lat":19,"lng":-72.3,"n":0,"prio":0,"tier":"data"}];
+const bars=DATA.filter(d=>d.n>0);
+const rings=DATA.filter(d=>d.n===0);
+const COL={calc:'#4cc3c9',rep:'#3b71b9'};
+const maxN=Math.max(...bars.map(d=>d.n));
+const alt=n=>0.06+0.5*Math.sqrt(n)/Math.sqrt(maxN);
+const world=document.getElementById('globe');
+const G=Globe()(world)
+  .backgroundColor('#0a1430')
+  .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-dark.jpg')
+  .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
+  .showAtmosphere(true).atmosphereColor('#4cc3c9').atmosphereAltitude(0.17)
+  // bars
+  .pointsData(bars)
+  .pointLat('lat').pointLng('lng')
+  .pointColor(d=>COL[d.tier])
+  .pointAltitude(d=>alt(d.n))
+  .pointRadius(d=>0.42+Math.min(d.prio,6)*0.03)
+  .pointLabel(d=>'<div class="gtt"><span class="t '+d.tier+'">'+(d.tier==='calc'?'computed':'reported')+'</span><br><b>'+d.c+'</b><br>'+d.n+' SDG value'+(d.n>1?'s':'')+' · '+d.prio+' priority</div>')
+  .pointsTransitionDuration(1200)
+  // rings (data-in-hand)
+  .ringsData(rings)
+  .ringLat('lat').ringLng('lng')
+  .ringColor(()=>(t=>'rgba(127,224,228,'+(1-t)+')'))
+  .ringMaxRadius(2.6).ringPropagationSpeed(0.9).ringRepeatPeriod(1400)
+  .ringAltitude(0.004)
+  .onPointClick(d=>G.pointOfView({lat:d.lat,lng:d.lng,altitude:1.5},900));
+// small glowing markers under rings so they're visible when not mid-pulse
+G.labelsData(rings).labelLat('lat').labelLng('lng').labelText(()=>'').labelSize(0.01).labelDotRadius(0.28).labelColor(()=>'#7fe0e4').labelAltitude(0.006);
+// view + auto-rotate
+G.pointOfView({lat:14,lng:28,altitude:2.1},0);
+const c=G.controls();c.autoRotate=true;c.autoRotateSpeed=0.55;c.enableDamping=true;c.dampingFactor=0.1;c.minDistance=170;c.maxDistance=600;
+// pause rotation on interaction, resume after idle
+let idle;const pause=()=>{c.autoRotate=false;clearTimeout(idle);idle=setTimeout(()=>c.autoRotate=true,3500)};
+world.addEventListener('pointerdown',pause);world.addEventListener('wheel',pause,{passive:true});
+addEventListener('resize',()=>{G.width(innerWidth);G.height(innerHeight)});
+G.width(innerWidth).height(innerHeight);
+</script>
+</body>
+</html>
