@@ -332,14 +332,12 @@ let hoverF=null,pinNm=null,activeGoal=null;
 function isActiveNm(o){return (o===pinNm)||(hoverF&&ourOf(hoverF)===o);}
 function inFilter(o){return VAL.has(o)&&(activeGoal==null||goalsOf(o).has(activeGoal))&&(activePop==null||popCovered(o).has(activePop));}
 function capColor(f){ if(MODE==='gap')return gapCap(f); const o=ourOf(f);
-  if(VAL.has(o)){ if(activeGoal!=null && !goalsOf(o).has(activeGoal)) return 'rgba(70,90,120,0.3)';
-    const base=(tier(o)||'rep')==='calc'?'76,195,201':'123,179,240'; return 'rgba('+base+(isActiveNm(o)?',0.92)':',0.6)'); }
-  if(originSet.has(ISO_OF(f)))return 'rgba(255,186,92,0.6)';   // origin countries
-  return 'rgba(0,0,0,0)'; }  // transparent -> the real Earth shows through
-function polyAlt(f){ if(MODE==='gap')return gapAlt(f); const o=ourOf(f); if(inFilter(o)) return isActiveNm(o)?0.045:0.012; if(originSet.has(ISO_OF(f)))return 0.012; return 0.004; }
-function strokeColor(f){const act=MODE==='gap'?(f===hoverF):isActiveNm(ourOf(f)); if(act)return '#ffffff';
-  if(MODE==='coverage'){ if(originSet.has(ISO_OF(f)))return '#ffcf7a'; if(VAL.has(ourOf(f)))return 'rgba(255,255,255,0.3)'; return 'rgba(0,0,0,0)'; }
-  const p=POPALL[ISO_OF(f)]; return (p&&p.total>0)?'rgba(255,255,255,0.22)':'rgba(0,0,0,0)'; }
+  if(VAL.has(o)){ if(activeGoal!=null && !goalsOf(o).has(activeGoal)) return C_VALDIM;
+    const k=tier(o)||'rep'; return isActiveNm(o)?COLS[k].h:COLS[k].b; }
+  if(originSet.has(ISO_OF(f)))return isActiveNm(o)?'#c08a38':'#9a6f30';   // origin countries (warm glow)
+  return C_NONE; }  // data-in-hand & no-data both render as plain muted land
+function polyAlt(f){ if(MODE==='gap')return gapAlt(f); const o=ourOf(f); if(inFilter(o)) return isActiveNm(o)?0.085:0.03; if(originSet.has(ISO_OF(f)))return 0.024; return 0.013; }
+function strokeColor(f){const a=MODE==='gap'?(f===hoverF):isActiveNm(ourOf(f)); if(a)return '#eafaff'; if(MODE==='coverage'&&originSet.has(ISO_OF(f)))return '#ffd27a'; return 'rgba(158,180,214,0.18)';}
 function refreshPoly(){G.polygonCapColor(capColor).polygonAltitude(polyAlt).polygonStrokeColor(strokeColor);}
 function setLabel(nm){ const labels=[]; if(nm&&LL[nm])labels.push({lat:LL[nm][0],lng:LL[nm][1],txt:nm,big:true});
   if(MODE==='coverage'&&nm)flowOrigins(nm).forEach(x=>{const c=CENT[x.oi];labels.push({lat:c[0],lng:c[1],txt:x.o+' '+fmtN(x.n),big:false});});
@@ -364,12 +362,11 @@ function lerp(a,b,t){const x=hx(a),y=hx(b);return '#'+[0,1,2].map(i=>Math.round(
 const gapMax=Math.max(1,...Object.values(POPALL).filter(v=>!v.covered).map(v=>v.total));
 function gapScale(t){return Math.min(1,Math.log10(t+1)/Math.log10(gapMax+1));}
 function gapCol(t){return lerp('#f2c14e','#e5484d',gapScale(t));}
-function toRGBA(h,a){const x=hx(h);return 'rgba('+x[0]+','+x[1]+','+x[2]+','+a+')';}
-function gapCap(f){const p=POPALL[ISO_OF(f)]; if(!p||p.total<=0)return 'rgba(0,0,0,0)';
-  if(p.covered)return f===hoverF?'rgba(120,225,230,0.9)':'rgba(44,110,114,0.82)';
-  return toRGBA(gapCol(p.total), f===hoverF?0.93:0.78);}
-function gapAlt(f){const p=POPALL[ISO_OF(f)]; if(!p||p.total<=0)return 0.004;
-  if(p.covered)return 0.012; return 0.014+0.07*gapScale(p.total)+(f===hoverF?0.015:0);}
+function gapCap(f){const p=POPALL[ISO_OF(f)]; if(!p||p.total<=0)return C_NONE;
+  if(p.covered)return f===hoverF?'#6fd7dc':'#2b6468';
+  const c=gapCol(p.total); return f===hoverF?lerp(c,'#ffffff',0.3):c;}
+function gapAlt(f){const p=POPALL[ISO_OF(f)]; if(!p||p.total<=0)return 0.013;
+  if(p.covered)return 0.018; return 0.024+0.085*gapScale(p.total)+(f===hoverF?0.02:0);}
 function flyToIso(iso){const c=CENT[iso]; if(c)G.pointOfView({lat:c[0],lng:c[1],altitude:1.6},900);}
 function gapRow(iso,v,rank){const parts=[];
   if(v.ref+v.asy>0)parts.push('Ref '+fmtN(v.ref+v.asy)); if(v.idps>0)parts.push('IDP '+fmtN(v.idps));
@@ -443,11 +440,10 @@ modetog.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)re
 const world=document.getElementById('globe');
 const G=Globe()(world)
   .backgroundColor('rgba(0,0,0,0)')
-  .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg').bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
-  .showAtmosphere(true).atmosphereColor('#9bd1ff').atmosphereAltitude(0.2)
+  .showAtmosphere(true).atmosphereColor('#6ad0d9').atmosphereAltitude(0.19)
   .showGraticules(false)
   .polygonsData(WORLDGEO.features)
-  .polygonCapColor(capColor).polygonSideColor(()=>'rgba(10,22,44,0.3)')
+  .polygonCapColor(capColor).polygonSideColor(()=>'rgba(2,7,18,0.92)')
   .polygonStrokeColor(strokeColor).polygonAltitude(polyAlt).polygonsTransitionDuration(260)
   .polygonLabel(f=>{ if(MODE==='gap'){const p=POPALL[ISO_OF(f)];return (p&&p.total>0)?'<div class="gtt">'+p.name+' · '+fmtN(p.total)+' displaced'+(p.covered?' · ✓ SDG data':' · no SDG data')+'</div>':'';} const o=ourOf(f);return inFilter(o)?'<div class="gtt">'+o+' · '+countText(o)+'</div>':'';})
   .onPolygonHover(f=>{ if(MODE==='gap'){const p=f&&POPALL[ISO_OF(f)]; hoverF=(p&&p.total>0)?f:null; world.style.cursor=hoverF?'pointer':'grab'; pause(); refreshPoly(); return;}
@@ -460,7 +456,7 @@ const G=Globe()(world)
   .arcDashLength(0.35).arcDashGap(0.16).arcDashAnimateTime(1500).arcAltitudeAutoScale(0.6).arcCircularResolution(64).arcsTransitionDuration(0)
   .arcLabel(d=>'<div class="gtt">'+d.o+' → '+fmtN(d.n)+' refugees</div>')
   .labelsData([]).labelLat('lat').labelLng('lng').labelText('txt').labelSize(d=>d.big?1.05:0.66).labelDotRadius(d=>d.big?0.34:0.26).labelColor(d=>d.big?'#eafaff':'#ffe0b0').labelResolution(2).labelAltitude(0.035);
-try{const gm=G.globeMaterial(); gm.color&&gm.color.set&&gm.color.set('#ffffff'); gm.emissive&&gm.emissive.set&&gm.emissive.set('#1a2a44'); gm.emissiveIntensity=0.22; gm.shininess=10;}catch(e){}
+try{const gm=G.globeMaterial(); gm.color&&gm.color.set&&gm.color.set('#0b2543'); gm.emissive&&gm.emissive.set&&gm.emissive.set('#06142c'); gm.emissiveIntensity=0.2; gm.shininess=40; gm.specular&&gm.specular.set&&gm.specular.set('#4675a6');}catch(e){}
 G.pointOfView({lat:14,lng:30,altitude:2.2},0);
 const ctr=G.controls();ctr.autoRotate=true;ctr.autoRotateSpeed=0.4;ctr.enableDamping=true;ctr.dampingFactor=0.1;ctr.minDistance=190;ctr.maxDistance=540;
 let idle;const pause=()=>{ctr.autoRotate=false;clearTimeout(idle);idle=setTimeout(()=>ctr.autoRotate=true,4500)};
