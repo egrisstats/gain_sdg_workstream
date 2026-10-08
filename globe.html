@@ -72,7 +72,7 @@ const bars=DATA.filter(d=>d.n>0);
 const rings=DATA.filter(d=>d.n===0);
 const COL={calc:'#4cc3c9',rep:'#3b71b9'};
 const maxN=Math.max(...bars.map(d=>d.n));
-const alt=n=>0.06+0.5*Math.sqrt(n)/Math.sqrt(maxN);
+const alt=n=>0.05+0.45*Math.cbrt(n)/Math.cbrt(maxN);
 const world=document.getElementById('globe');
 const G=Globe()(world)
   .backgroundColor('#0a1430')
