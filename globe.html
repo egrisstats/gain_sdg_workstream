@@ -349,7 +349,7 @@ function polyAlt(f){ if(MODE==='gap')return gapAlt(f); const o=ourOf(f); if(inFi
 function strokeColor(f){const a=MODE==='gap'?(f===hoverF):isActiveNm(ourOf(f)); if(a)return '#eafaff'; if(MODE==='coverage'&&originSet.has(ISO_OF(f)))return '#ffd27a'; return 'rgba(158,180,214,0.18)';}
 function refreshPoly(){renderLayers();}
 function setLabel(nm){ const labels=[]; if(nm&&LL[nm])labels.push({lat:LL[nm][0],lng:LL[nm][1],txt:nm,big:true});
-  if(MODE==='coverage'&&nm)flowOrigins(nm).forEach(x=>{const c=CENT[x.oi];labels.push({lat:c[0],lng:c[1],txt:x.o+' '+fmtN(x.n),big:false});});
+  if(MODE==='coverage'&&nm)flowOrigins(nm).slice(0,3).forEach(x=>{const c=CENT[x.oi];labels.push({lat:c[0],lng:c[1],txt:shortNm(x.o)+' '+fmtN(x.n),big:false});});
   labelData=labels; }
 // ---- card panel ----
 const panel=document.getElementById('cardpanel');
@@ -398,7 +398,7 @@ const maxArc=Math.max(1,...Object.values(ORIGINS).flat().map(x=>x.n));
 function originsFor(nm){const p=POP[nm];return (p&&ORIGINS[p.iso])?ORIGINS[p.iso]:null;}
 function originSection(nm){const r=originsFor(nm);if(!r||!r.length)return'';
   const tot=r.reduce((s,x)=>s+x.n,0); if(tot<500)return''; const mx=r[0].n;
-  const items=r.filter(x=>x.n>=Math.max(300,mx*0.01)).slice(0,5).map(x=>'<span class="ochip">'+x.o+' <b>'+fmtN(x.n)+'</b></span>').join('');
+  const items=r.filter(x=>x.n>=Math.max(300,mx*0.01)).slice(0,5).map(x=>'<span class="ochip">'+shortNm(x.o)+' <b>'+fmtN(x.n)+'</b></span>').join('');
   return items?'<div class="popstrip mini orig"><div class="poph">Refugees come from · UNHCR 2024</div><div class="ochips">'+items+'</div></div>':'';}
 let originSet=new Set();
 function flowOrigins(nm){const r=originsFor(nm);if(!r||!r.length)return[];const mx=r[0].n;return r.filter(x=>x.n>=Math.max(300,mx*0.02)&&CENT[x.oi]).slice(0,8);}
@@ -448,12 +448,13 @@ modetog.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)re
 // ---- globe ----
 // ================= deck.gl globe engine =================
 const {Deck,_GlobeView,GeoJsonLayer,ArcLayer,SolidPolygonLayer,TextLayer,LinearInterpolator}=deck;
-let dk=null, arcData=[], labelData=[], autoRot=true, idleT=null, VER=0;
+let dk=null, arcData=[], labelData=[], autoRot=true, idleT=null, VER=0, down=false;
 let vs={longitude:30,latitude:14,zoom:0,minZoom:-0.5,maxZoom:4};
 function cssToArr(c){ if(!c)return [0,0,0,0]; if(c[0]==='#'){const x=hx(c);return [x[0],x[1],x[2],255];}
   const m=c.match(/rgba?\(([^)]+)\)/); if(!m)return [0,0,0,0]; const p=m[1].split(',').map(parseFloat);
   return [p[0]|0,p[1]|0,p[2]|0, p.length>3?Math.round(p[3]*255):255]; }
-function pause(){ autoRot=false; clearTimeout(idleT); idleT=setTimeout(()=>autoRot=true,4500); }
+function pause(){ autoRot=false; clearTimeout(idleT); idleT=setTimeout(()=>{if(!down&&!pinNm)autoRot=true;},4500); }
+function shortNm(s){return (s||'').replace(/\s*\([^)]*\)/,'').replace('Dem. Rep. of the Congo','DR Congo').replace('Syrian Arab Rep.','Syria').replace('Russian Federation','Russia').replace('Republic of Moldova','Moldova').trim();}
 function flyTo(lat,lng){ pause(); let tl=lng; while(tl-vs.longitude>180)tl-=360; while(tl-vs.longitude<-180)tl+=360; vs={...vs,latitude:lat,longitude:tl,transitionDuration:800,transitionInterpolator:new LinearInterpolator(['longitude','latitude'])}; dk&&dk.setProps({viewState:vs}); }
 function onHover(info){ const f=info&&info.object;
   if(MODE==='gap'){ const p=f&&POPALL[ISO_OF(f)]; hoverF=(p&&p.total>0)?f:null; pause(); refreshPoly(); return; }
@@ -479,11 +480,12 @@ function renderLayers(){ if(!dk)return; VER++;
       getSourcePosition:d=>[d.sLng,d.sLat],getTargetPosition:d=>[d.eLng,d.eLat],
       getSourceColor:[255,196,110,110],getTargetColor:[150,236,255,235],
       getWidth:d=>1+2.8*Math.sqrt(d.n)/Math.sqrt(maxArc),getHeight:0.5}),
-    new TextLayer({id:'labels',data:labelData,getPosition:d=>[d.lng,d.lat],getText:d=>d.txt,
+    new TextLayer({id:'labels',data:labelData,getPosition:d=>[d.lng,d.lat,60000],getText:d=>d.txt,
       sizeUnits:'pixels',getSize:d=>d.big?14:12,sizeMinPixels:11,sizeMaxPixels:16,
       getColor:[240,247,255],getTextAnchor:'middle',getAlignmentBaseline:'center',billboard:true,fontWeight:700,
       background:true,getBackgroundColor:d=>d.big?[18,42,84,235]:[9,20,40,214],backgroundPadding:[6,3,6,3],
-      getBorderColor:d=>d.big?[150,236,255,200]:[255,206,122,170],getBorderWidth:1,fontSettings:{sdf:true}})
+      getBorderColor:d=>d.big?[150,236,255,200]:[255,206,122,170],getBorderWidth:1,fontSettings:{sdf:true},
+      parameters:{depthTest:true}})
   ]});
 }
 dk=new Deck({ parent:document.getElementById('globe'),
@@ -492,7 +494,11 @@ dk=new Deck({ parent:document.getElementById('globe'),
   onViewStateChange:({viewState,interactionState})=>{ vs=viewState; if(interactionState&&(interactionState.isDragging||interactionState.isZooming||interactionState.isPanning))pause(); },
   parameters:{clearColor:[0,0,0,0]}, layers:[] });
 renderLayers();
-function spin(){ requestAnimationFrame(spin); if(autoRot&&dk){ vs={longitude:(vs.longitude+0.12)%360,latitude:vs.latitude,zoom:vs.zoom,minZoom:vs.minZoom,maxZoom:vs.maxZoom}; dk.setProps({viewState:vs}); } }
+const globeEl=document.getElementById('globe');
+globeEl.addEventListener('pointerdown',()=>{down=true;autoRot=false;clearTimeout(idleT);});
+addEventListener('pointerup',()=>{down=false;pause();});
+globeEl.addEventListener('wheel',()=>pause(),{passive:true});
+function spin(){ requestAnimationFrame(spin); if(autoRot&&!down&&dk){ vs={longitude:(vs.longitude+0.12)%360,latitude:vs.latitude,zoom:vs.zoom,minZoom:vs.minZoom,maxZoom:vs.maxZoom}; dk.setProps({viewState:vs}); } }
 requestAnimationFrame(spin);
 addEventListener('resize',()=>{ if(dk)dk.setProps({width:innerWidth,height:innerHeight}); });
 // ---- live card <-> country connector line ----
