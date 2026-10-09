@@ -348,9 +348,7 @@ function capColor(f){ if(MODE==='gap')return gapCap(f); const o=ourOf(f);
 function polyAlt(f){ if(MODE==='gap')return gapAlt(f); const o=ourOf(f); if(inFilter(o)) return isActiveNm(o)?0.085:0.03; if(originSet.has(ISO_OF(f)))return 0.024; return 0.013; }
 function strokeColor(f){const a=MODE==='gap'?(f===hoverF):isActiveNm(ourOf(f)); if(a)return '#eafaff'; if(MODE==='coverage'&&originSet.has(ISO_OF(f)))return '#ffd27a'; return 'rgba(158,180,214,0.18)';}
 function refreshPoly(){renderLayers();}
-function setLabel(nm){ const labels=[]; if(nm&&LL[nm])labels.push({lat:LL[nm][0],lng:LL[nm][1],txt:nm,big:true});
-  if(MODE==='coverage'&&nm)flowOrigins(nm).slice(0,3).forEach(x=>{const c=CENT[x.oi];labels.push({lat:c[0],lng:c[1],txt:shortNm(x.o)+' '+fmtN(x.n),big:false});});
-  labelData=labels; }
+function setLabel(nm){ labelData=(nm&&LL[nm])?[{lat:LL[nm][0],lng:LL[nm][1],txt:nm,big:true}]:[]; }
 // ---- card panel ----
 const panel=document.getElementById('cardpanel');
 const cardbody=document.getElementById('cardbody');
@@ -480,12 +478,12 @@ function renderLayers(){ if(!dk)return; VER++;
       getSourcePosition:d=>[d.sLng,d.sLat],getTargetPosition:d=>[d.eLng,d.eLat],
       getSourceColor:[255,196,110,110],getTargetColor:[150,236,255,235],
       getWidth:d=>1+2.8*Math.sqrt(d.n)/Math.sqrt(maxArc),getHeight:0.5}),
-    new TextLayer({id:'labels',data:labelData,getPosition:d=>[d.lng,d.lat,60000],getText:d=>d.txt,
-      sizeUnits:'pixels',getSize:d=>d.big?14:12,sizeMinPixels:11,sizeMaxPixels:16,
-      getColor:[240,247,255],getTextAnchor:'middle',getAlignmentBaseline:'center',billboard:true,fontWeight:700,
-      background:true,getBackgroundColor:d=>d.big?[18,42,84,235]:[9,20,40,214],backgroundPadding:[6,3,6,3],
-      getBorderColor:d=>d.big?[150,236,255,200]:[255,206,122,170],getBorderWidth:1,fontSettings:{sdf:true},
-      parameters:{depthTest:true}})
+    new TextLayer({id:'labels',data:labelData,getPosition:d=>[d.lng,d.lat,90000],getText:d=>d.txt,
+      sizeUnits:'pixels',getSize:17,sizeMinPixels:13,sizeMaxPixels:20,
+      getColor:[247,251,255],getTextAnchor:'middle',getAlignmentBaseline:'center',billboard:true,
+      fontFamily:'Figtree, sans-serif',fontWeight:600,characterSet:'auto',
+      fontSettings:{sdf:true,buffer:12,radius:16},outlineWidth:5,outlineColor:[8,16,34,255],
+      getPixelOffset:[0,-14],parameters:{depthTest:true}})
   ]});
 }
 dk=new Deck({ parent:document.getElementById('globe'),
