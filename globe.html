@@ -167,6 +167,18 @@ body.gapview .legend.gap{display:block}
 .gaprow .gsub{font-size:9px;color:#96a6c0}
 .orow .psrc,.poprow .psrc{font-size:9px;color:#90a0ba}
 .legend .hint,.sub{color:#b4c1da}
+/* floating country label (HTML overlay — always upright & readable) */
+#globelabel{position:fixed;z-index:60;pointer-events:none;transform:translate(-50%,-165%);
+  font:600 13px/1 "Figtree",system-ui,sans-serif;letter-spacing:.2px;color:#f3fbff;
+  background:rgba(9,20,40,.86);border:1px solid rgba(123,230,236,.5);
+  padding:5px 11px;border-radius:999px;white-space:nowrap;
+  box-shadow:0 6px 18px rgba(0,0,0,.45);backdrop-filter:blur(3px);
+  display:flex;align-items:center;gap:7px;opacity:0;transition:opacity .14s}
+#globelabel.show{opacity:1}
+#globelabel::after{content:"";position:absolute;left:50%;top:100%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:rgba(9,20,40,.86)}
+#globelabel b{color:#9beaed;font-weight:700}
+#globelabel i{font-style:normal;color:#9fb0cc;font-weight:500;font-size:11px}
 </style>
 </head>
 <body>
@@ -212,6 +224,7 @@ body.gapview .legend.gap{display:block}
 <div class="sdgstatus" id="sdgstatus"></div>
 <div class="ui sdgbar" id="sdgbar"></div>
 <svg class="conn" id="conn"><line id="connLine"/><circle id="connPulse" r="6"/><circle id="connDot" r="4"/></svg>
+<div id="globelabel"></div>
 <script src="https://cdn.jsdelivr.net/npm/globe.gl"></script>
 <script>
 const SHORT={"State of Palestine":"Palestine","United Kingdom":"UK","DR Congo":"DR Congo","Republic of Moldova":"Moldova","Côte d'Ivoire":"Côte d'Ivoire","Turkmenistan":"Turkmen.","Kyrgyzstan":"Kyrgyz.","Kazakhstan":"Kazakh."};
@@ -471,7 +484,7 @@ function onClickF(f){ if(!f)return;
 }
 function refreshPoly(){ if(!world)return;
   world.hexPolygonColor(f=>hexColor(f)).hexPolygonAltitude(f=>hexAlt(f));
-  world.labelsData(labelData.slice()).arcsData(arcData.slice());
+  world.arcsData(arcData.slice());   // country name shown via the HTML #globelabel overlay
 }
 const globeEl=document.getElementById('globe');
 world=Globe({animateIn:true})(globeEl)
@@ -508,13 +521,20 @@ addEventListener('resize',()=>{ if(world){world.width(innerWidth);world.height(i
 // ---- live card <-> country connector line ----
 const conn=document.getElementById('conn'),connLine=document.getElementById('connLine'),connDot=document.getElementById('connDot'),connPulse=document.getElementById('connPulse');
 function gcCos(la1,lo1,la2,lo2){const d=Math.PI/180,a=la1*d,b=la2*d,dl=(lo2-lo1)*d;return Math.sin(a)*Math.sin(b)+Math.cos(a)*Math.cos(b)*Math.cos(dl);}
+const glabel=document.getElementById('globelabel');
 function updateConnector(){ requestAnimationFrame(updateConnector);
   const nm=(MODE==='coverage')?lastNm:null;
-  if(!nm||!LL[nm]||!world){conn.classList.remove('show');return;}
+  const hide=()=>{conn.classList.remove('show');glabel.classList.remove('show');};
+  if(!nm||!LL[nm]||!world){hide();return;}
   const pov=world.pointOfView();
-  if(gcCos(pov.lat,pov.lng,LL[nm][0],LL[nm][1])<0.12){conn.classList.remove('show');return;}
+  if(gcCos(pov.lat,pov.lng,LL[nm][0],LL[nm][1])<0.1){hide();return;}   // country rotated to the far side
   let sc; try{sc=world.getScreenCoords(LL[nm][0],LL[nm][1]);}catch(e){sc=null;}
-  if(!sc||sc.x==null||isNaN(sc.x)){conn.classList.remove('show');return;}
+  if(!sc||sc.x==null||isNaN(sc.x)){hide();return;}
+  // floating name pill at the country
+  const n=totVals(nm);
+  glabel.innerHTML=`<b>${SHORT[nm]||nm}</b>`+(n?`<i>${n} value${n>1?'s':''}</i>`:'');
+  glabel.style.left=sc.x+'px'; glabel.style.top=sc.y+'px'; glabel.classList.add('show');
+  // connector line from the card title to the country
   const pr=panel.getBoundingClientRect(); const tx=pr.left+2, ty=pr.top+26;
   connLine.setAttribute('x1',tx);connLine.setAttribute('y1',ty);connLine.setAttribute('x2',sc.x);connLine.setAttribute('y2',sc.y);
   [connDot,connPulse].forEach(c=>{c.setAttribute('cx',sc.x);c.setAttribute('cy',sc.y);});
