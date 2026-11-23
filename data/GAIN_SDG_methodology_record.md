@@ -65,7 +65,7 @@ variable mapping** (what changes per survey), and the survey weight.
 ### SDG 16.9.1 — Birth registration, under-5
 - **Definition:** children under 5 whose birth is registered ÷ all under-5.
 - **Variable mapping:** roster level, filtered to age <5.
-  - SSD & PAK FDS → `HH_07b` (birth registered); age `ageYears` (SSD) / `agetouse` (PAK)
+  - SSD & PAK FDS → `HH_07a` (has a birth certificate) or `HH_07b` (birth registered); age `ageYears` (SSD) / `agetouse` (PAK). See §14.
   - DRC Profiling → `s01q04_BirthCertificate` (member file, joined to household group via `ID_Household`)
 
 ### SDG 4.1.2 — School attendance, ages 6–17
@@ -83,15 +83,15 @@ variable mapping** (what changes per survey), and the survey weight.
 
 | Country | 2.1.2 Food | 6.1.1 Water | 6.2.1 Sanit. | 8.5.2 Unemp. | 16.9.1 Birth reg | 4.1.2 School |
 |---|---|---|---|---|---|---|
-| South Sudan (FDS) | 90% | 97% | 58% | — | 62% | 81% |
-| Pakistan (FDS) | 47% | 79% | 74% | 11% | 42% | — |
+| South Sudan (FDS) | 90% | 97% | 58% | — | 95% | 81% |
+| Pakistan (FDS) | 47% | 92% | 74% | 11% | 47% | — |
 | Zambia (FDS) | 76% | 98% | 75% | — | — | — |
 | DR Congo (Profiling) | — | 30% | 8% | — | — | — |
 | Cameroon (Profiling) | 51% | — | — | — | — | — |
 
 **Recurring finding:** refugees in *managed settlements* often out-perform surrounding hosts on
 services (Zambia water 98% vs 75%, sanitation 75% vs 29%; South Sudan sanitation 58% vs 18%;
-birth registration 62% vs 27%), while **food insecurity is severe for both** (South Sudan 90%,
+birth registration 95% vs 57%), while **food insecurity is severe for both** (South Sudan 90%,
 Zambia 76%). Full host comparisons and per-cell method notes are in
 `gain_sdg_values_calculated.csv`.
 
@@ -224,3 +224,49 @@ an improved source within a ≤30-minute round trip — which is systematically 
 safely-managed. On the map these values carry an **asterisk (\*)** and the card's source line
 reads "basic drinking water." A basic-water 6.1.1 (e.g. Morocco 99%) is therefore **not
 directly comparable** to a safely-managed 6.1.1 (Lebanon 7%).
+
+## §13 — SDG 6.1.1 on the FDS surveys: definition changed to current JMP (2026-11-23)
+
+No script for the FDS values was saved, so the definition behind the first published figures was
+recovered by recalculation from the microdata. It counted piped water, public taps, boreholes,
+protected wells and springs, rainwater and packaged water, and did **not** count tanker trucks or
+carts. That reproduces the first figures exactly (Pakistan 79% / 81%, South Sudan 97% / 86%,
+Zambia 98% / 75%).
+
+From this date the FDS values follow **current JMP guidance**, which counts delivered water as
+improved. Improved = `BD01` codes 11–14 (piped, public tap), 21 (borehole), 31 (protected well),
+41 (protected spring), 51 (rainwater), 61 (tanker truck from a protected source), 71 (cart with
+small tank), 72 (water kiosk), 91–92 (bottled, sachet). Unimproved = 32, 42 (unprotected well,
+spring), 62 (tanker truck from an unprotected source), 81 (surface water), 96 (other).
+No 30-minute rule is applied, so these remain the improved-source proxy, not safely managed.
+
+| Survey | Before (refugees / host) | Now (refugees / host) | Weight |
+|---|---|---|---|
+| South Sudan FDS 2023 | 97% / 86% | 97% / 88% | `wgh_samp_resc_pop` |
+| Pakistan FDS 2024 | 79% / 81% | 92% / 90% | `wgh_strata_spec` |
+| Zambia FDS 2025 | 98% / 75% | 98% / 75% | `wgh_strata_spec` |
+
+Pakistan moves most because about 15% of sampled households get water by tanker truck.
+The Zambia file ships `BD01` as bare codes with no value labels; the FDS code list from the
+Pakistan data dictionary was used.
+
+**Not changed:** SDG 6.2.1 on the FDS surveys still counts every flush toilet, including flush to
+an open drain, which JMP treats as unimproved. Applying JMP there would lower Pakistan from
+74% / 95% to 72% / 91%. Kenya, DR Congo, Somalia and Mozambique water values were not recalculated.
+
+## §14 — Birth registration and school attendance on the FDS surveys: corrected (2026-11-23)
+
+All FDS values were recalculated from the survey files. Three did not follow their definition and
+were corrected. The other FDS values reproduce (Zambia sanitation recalculates to 76% / 30%, one
+point above the published 75% / 29%, and was left as published).
+
+| Value | Before (refugees / host) | Now (refugees / host) | What was wrong |
+|---|---|---|---|
+| South Sudan 16.9.1 | 62% / 27% | 95% / 57% | Only `HH_07b` (birth registered) was counted. South Sudan asks `HH_07b` only when the child has no birth certificate (`HH_07a`), so the old value was the share registered among children without a certificate. |
+| Pakistan 16.9.1 | 42% / 86% | 47% / 87% | Only `HH_07b` was counted. Pakistan asks both questions of every child; children with a certificate but "not registered" were left out of the numerator. `HH_07b` alone gives 44% / 86% in version 2 of the file. |
+| South Sudan 4.1.2 | 81% / 47% | 81% / 49% | The refugee value used children with a yes/no answer as denominator, the host value used all children aged 6–17. Both now use children with a yes/no answer (with all children it would be 76% / 47%). |
+
+**Definition now used for 16.9.1:** has a birth certificate (`HH_07a` = yes) or birth registered
+with the civil authorities (`HH_07b` = yes), among children under 5 with an answer to either
+question. Weights unchanged (`wgh_samp_resc_pop` South Sudan, `wgh_strata_spec` Pakistan).
+Unweighted records: South Sudan 2,443 / 1,168; Pakistan 5,332 / 1,116.

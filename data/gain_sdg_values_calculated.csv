@@ -1,19 +1,19 @@
 country,sdg,indicator,refugee_value,host_value,year,source,method
 Cameroon,2.1.2,Food insecurity,51%,32%,2024,UNHCR CMR Profiling,rCSI level 3 weighted (IDP vs host)
 South Sudan,2.1.2,Food insecurity,90%,90%,2023,UNHCR SSD FDS,WFP FCS<=35 weighted
-South Sudan,6.1.1,Improved drinking water,97%,86%,2023,UNHCR SSD FDS,JMP improved source (BD01) weighted
+South Sudan,6.1.1,Improved drinking water,97%,88%,2023,UNHCR SSD FDS,JMP improved source (BD01) incl. delivered water (tanker from protected source, cart, kiosk) and packaged water; weighted
 South Sudan,6.2.1,Improved sanitation,58%,18%,2023,UNHCR SSD FDS,JMP improved facility (SAN01) weighted
-South Sudan,16.9.1,Birth registration u5,62%,27%,2023,UNHCR SSD FDS,roster HH_07b under-5 weighted
-South Sudan,4.1.2,School attendance 6-17,81%,47%,2023,UNHCR SSD FDS,roster HH_Educ02a age 6-17 weighted
+South Sudan,16.9.1,Birth registration u5,95%,57%,2023,UNHCR SSD FDS,roster birth certificate (HH_07a) or registered (HH_07b) under-5 weighted
+South Sudan,4.1.2,School attendance 6-17,81%,49%,2023,UNHCR SSD FDS,roster HH_Educ02a age 6-17 with a yes/no answer weighted
 Pakistan,2.1.2,Food insecurity,47%,33%,2024,UNHCR PAK FDS,WFP FCS<=35 weighted
-Pakistan,6.1.1,Improved drinking water,79%,81%,2024,UNHCR PAK FDS,JMP improved source (BD01) weighted
+Pakistan,6.1.1,Improved drinking water,92%,90%,2024,UNHCR PAK FDS,JMP improved source (BD01) incl. delivered water (tanker from protected source, cart, kiosk) and packaged water; weighted
 Pakistan,6.2.1,Improved sanitation,74%,95%,2024,UNHCR PAK FDS,JMP improved facility (SAN01) weighted
 Pakistan,8.5.2,Unemployment rate,11%,9%,2024,UNHCR PAK FDS,ILO: employed(EMP01-05) vs sought(EMP25a)+available(EMP29); labour force
-Pakistan,16.9.1,Birth registration u5,42%,86%,2024,UNHCR PAK FDS,roster HH_07b under-5 weighted
+Pakistan,16.9.1,Birth registration u5,47%,87%,2024,UNHCR PAK FDS,roster birth certificate (HH_07a) or registered (HH_07b) under-5 weighted
 DR Congo,6.1.1,Improved drinking water,30%,38% host,2023,UNHCR COD Kasai Profiling,JMP source (s06q15) unweighted; IDP value
 DR Congo,6.2.1,Improved sanitation,8%,6% host,2023,UNHCR COD Kasai Profiling,JMP facility (s06q25) unweighted; IDP value
 Zambia,2.1.2,Food insecurity,76%,76% host,2025,UNHCR ZAM FDS,WFP FCS<=35 weighted (.rds)
-Zambia,6.1.1,Improved drinking water,98%,75% host,2025,UNHCR ZAM FDS,JMP source (BD01) weighted
+Zambia,6.1.1,Improved drinking water,98%,75% host,2025,UNHCR ZAM FDS,JMP improved source (BD01) incl. delivered water (tanker from protected source, cart, kiosk) and packaged water; weighted
 Zambia,6.2.1,Improved sanitation,75%,29% host,2025,UNHCR ZAM FDS,JMP facility (SAN01) weighted
 Kenya,6.1.1,Improved drinking water,99%,100% host,2021,WB-UNHCR KEN RHHS,JMP source (e09) weighted; refugee vs host strata
 Kenya,6.2.1,Improved sanitation,97%,94% host,2021,WB-UNHCR KEN RHHS,JMP facility (e10) weighted; refugee vs host strata
