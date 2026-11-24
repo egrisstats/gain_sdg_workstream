@@ -270,3 +270,21 @@ point above the published 75% / 29%, and was left as published).
 with the civil authorities (`HH_07b` = yes), among children under 5 with an answer to either
 question. Weights unchanged (`wgh_samp_resc_pop` South Sudan, `wgh_strata_spec` Pakistan).
 Unweighted records: South Sudan 2,443 / 1,168; Pakistan 5,332 / 1,116.
+
+## 15. Report values checked against the report page (24 November 2026)
+
+Every value taken from a published report was compared with the page it cites. Ten did not match and were corrected:
+
+| Country, indicator | Was | Now | Why |
+|---|---|---|---|
+| State of Palestine 8.5.2 | 42.2% | 29.2% (West Bank only; non-refugees 28.6%) | 42.2% is the share of refugees in the population, not unemployment. This reverses the earlier change recorded above. |
+| Morocco 6.2.1 | 99% | 97% | The report gives 96.9% connected to the sanitation network. |
+| Morocco 6.1.1 | 99% | 99% | Value unchanged; the note wrongly gave 99.4%, which is electricity. |
+| Morocco 8.5.2 | 20% | 19% | The report gives 19% looking for work. |
+| Honduras 6.1.1 | 59% | removed | 59% is adequate solid-waste management; the report gives no water figure. |
+| Honduras 1.2.1 | 45% | 45% (43% non-displaced) | Value unchanged; it is extreme poverty, now labelled so. |
+| Somalia 6.2.1 | 70% for IDPs | 61% for refugees (Somali households more than 70%) | The page gives improved sanitation for refugees and for Somali households, not an IDP figure. |
+| Kenya 6.1.1 (Shona) | 87% | 92% | 87.4% is the 2019 level; 2024 is 92.3%. |
+| Kenya 6.2.1 (Shona) | 89% | 92% | 89% is female-headed households; the community as a whole is 92%. |
+| Colombia 1.2.1 | 49.7%, labelled 2024 | 51.9%, 2022 | 49.7% is all victims in urban areas in 2022; displaced victims are 51.9%. |
+

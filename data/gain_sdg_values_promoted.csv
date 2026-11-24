@@ -2,15 +2,14 @@ country,sdg,value,population,method,page,source,note
 Cameroon,2.1.2,51%,IDP (vs 32% host),computed,,UNHCR_CMR_2024_PROFILING microdata,rCSI level 3 by household status
 Jordan,8.5.2,21.4%,national (incl. non-Jordanians),extracted,,Jordan DOS LFS 2024,headline unemployment
 Egypt,1.2.1,65%,refugees,extracted,29,EVAR 2025 (WFP-CAPMAS),majority of refugee HHs high vulnerability
-Colombia,1.2.1,49.7%,victims/displaced (urban),extracted,3,DANE differential poverty 2024,monetary poverty in cabeceras
-Honduras,1.2.1,45%,IDP,extracted,6,INE Estudio Poblacion Desplazada,poverty probability displaced
+Colombia,1.2.1,51.9%,displaced victims (urban; all victims 49.7%),extracted,3,DANE differential poverty 2022,monetary poverty in cabeceras in 2022
+Honduras,1.2.1,45%,IDP (vs 43% non-displaced),extracted,6,INE Estudio Poblacion Desplazada,extreme poverty
 Honduras,2.1.2,46%,IDP,extracted,49,INE Estudio Poblacion Desplazada,food insecurity higher among displaced
 Honduras,4.1.2,80%,displaced,extracted,37,INE Estudio Poblacion Desplazada,literacy (8 in 10)
-Honduras,6.1.1,59%,displaced,extracted,35,INE Estudio Poblacion Desplazada,basic services access
 Somalia,1.2.1,63%,IDP (vs 45% host),extracted,37,WB-UNHCR JDC Somalia,multidimensionally poor
-Somalia,6.2.1,70%,IDP,extracted,31,WB-UNHCR JDC Somalia,open defecation >70%
+Somalia,6.2.1,61%,refugees (vs more than 70% Somali households),extracted,31,WB-UNHCR JDC Somalia,access to improved sanitation
 Somalia,11.1.1,75%,IDP,extracted,24,WB-UNHCR JDC Somalia,IDPs residing in urban areas
-State of Palestine,8.5.2,42.2%,"refugees (State of Palestine total; WB 29.2%, Gaza 66.1%)",extracted,2,PCBS,total refugee unemployment
+State of Palestine,8.5.2,29.2%,"refugees, West Bank only (vs 28.6% non-refugees)",extracted,2,PCBS,unemployment rate among refugees in the West Bank in 2025
 Uganda,6.1.1,91%,refugee HHs,extracted,17,UBOS,improved drinking water access
 United Kingdom,11.1.1,69%,resettled refugees,extracted,3,Home Office integration report,adequate bedrooms (not overcrowded)
 Peru,6.1.1,89%,Venezuelans,extracted,,INEI Condiciones de Vida Poblacion Venezolana 2024,water access
@@ -38,12 +37,12 @@ Rwanda,6.1.1,84%,refugees,extracted,103,NISR RPHC2022 Refugees Thematic,improved
 Rwanda,6.2.1,94%,refugees,extracted,104,NISR RPHC2022 Refugees Thematic,improved toilet facility
 Rwanda,7.1.1,41%,refugees,extracted,106,NISR RPHC2022 Refugees Thematic,solar 24% + grid 17.4%
 Rwanda,16.9.1,86%,refugees (vs 94% resident),extracted,79,NISR RPHC2022 Refugees Thematic,birth registration 0-17
-Morocco,6.1.1,99%,refugees,extracted,33,HCP Refugee Survey 2022,housing connected to water network (99.4%)
-Morocco,6.2.1,99%,refugees,extracted,33,HCP Refugee Survey 2022,connected to sanitation network
+Morocco,6.1.1,99%,refugees,extracted,33,HCP Refugee Survey 2022,housing connected to the drinking water network
+Morocco,6.2.1,97%,refugees,extracted,33,HCP Refugee Survey 2022,connected to sanitation network (96.9%)
 Morocco,7.1.1,99%,refugees,extracted,33,HCP Refugee Survey 2022,connected to electricity network
-Morocco,8.5.2,20%,refugees,extracted,18,HCP Refugee Survey 2022,~1 in 5 refugees unemployed
-Kenya,6.1.1,87%,stateless (Shona),extracted,44,Shona Socioeconomic Survey 2024,improved drinking water
-Kenya,6.2.1,89%,stateless (Shona),extracted,45,Shona Socioeconomic Survey 2024,improved sanitation
+Morocco,8.5.2,19%,refugees,extracted,18,HCP Refugee Survey 2022,about 1 in 5 refugees looking for work (19%)
+Kenya,6.1.1,92%,stateless (Shona),extracted,44,Shona Socioeconomic Survey 2024,improved drinking water in 2024 (92.3%; 87.4% in 2019)
+Kenya,6.2.1,92%,stateless (Shona),extracted,45,Shona Socioeconomic Survey 2024,improved sanitation in 2024 (female-headed households 89%)
 Kenya,7.1.1,97%,stateless (Shona),extracted,46,Shona Socioeconomic Survey 2024,grid 83% + solar 14%
 Lebanon,6.1.1,88%,Syrian refugees (settlements),extracted,29,Lebanon MICS 2023 Subnational (CAS),basic drinking water
 Lebanon,6.2.1,91%,Syrian refugees (settlements),extracted,30,Lebanon MICS 2023 Subnational (CAS),7% sewer + 84% onsite; 5% open defecation
